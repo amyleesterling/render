@@ -1,0 +1,30 @@
+{
+  "src": "D:/Meshes/renders/synapse_story_wide.mp4",
+  "out": "D:/Meshes/renders/synapse_story_wide_cap.mp4",
+  "fps": 24,
+  "fade": 8,
+  "cards": [
+    {
+      "in": 14,
+      "out": 118,
+      "eyebrow": "presynaptic",
+      "title": "Fifteen cells, in pink",
+      "body": "Every reconstructed cell here whose axon was traced, and which makes a synapse onto the population that follows."
+    },
+    {
+      "in": 134,
+      "out": 250,
+      "eyebrow": "their output",
+      "title": "25,723 synapses",
+      "body": "Each mark is one contact, at its measured coordinate. A median CA3 pyramidal cell makes on the order of two thousand outgoing synapses, so fifteen cells fill a volume."
+    },
+    {
+      "in": 292,
+      "out": 430,
+      "eyebrow": "postsynaptic, a fraction of them",
+      "title": "The cells they reach",
+      "body": "These 16 cells make 24,982 synapses onto 6,339 partners. The 250 pyramidal cells shown here catch 8.7 percent of them. The rest land on cells outside this set, which is why the gold continues below where the blue stops."
+    }
+  ],
+  "_note": "Card windows follow synapse_story.py at 452 frames: PRE_IN 15-75, SYN_IN 150-236, POST_IN 301-391. Card 3 originally opened at 266, 35 frames before any partner had arrived. Card 3 rewritten 31 Jul: it said the partners arrive around them, which reads as THE partners. Measured from pairs.parquet, only 219 of 6,339 partners are rendered and only 2,174 of 24,982 synapses have their partner on screen."
+}

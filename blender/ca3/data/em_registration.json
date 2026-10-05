@@ -1,0 +1,32 @@
+{
+ "data_centre_nm": [
+  829000.0,
+  935000.0,
+  50000.0
+ ],
+ "note": "centre of the reconstructed CELL population, measured over 242 cells (p0.5-p99.5 within each cell, then p1-p99 across cells). Previously this was the midpoint of the mossy fibre synapse cloud, which sits in stratum lucidum and is displaced 188 um in y from the cells, so every drawn block sat off the population.",
+ "cell_extent_um": {
+  "x": [
+   422,
+   1235
+  ],
+  "y": [
+   508,
+   1362
+  ],
+  "z": [
+   4,
+   96
+  ]
+ },
+ "cell_span_um": [
+  813,
+  854,
+  92
+ ],
+ "previous_synapse_centre_nm": [
+  825329.385,
+  1122734.7825,
+  50287.5
+ ]
+}

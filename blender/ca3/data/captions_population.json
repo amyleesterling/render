@@ -1,0 +1,39 @@
+{
+  "src": "D:/Meshes/renders/build_sequence_wide.mp4",
+  "out": "D:/Meshes/renders/build_sequence_wide_cap.mp4",
+  "fps": 24,
+  "fade": 8,
+  "_note": "Card windows are set from the real reveal ranges in ca3_animation.py GROUPS, not by eye: mossy_fibers 1-85, CA3_deep and CA3_superficial 80-165, thorny_pyramidals 160-250, sparsely_thorny 245-335, inhibitory 330-420. A first pass named the pink CA3 population as thorny cells, which was wrong.",
+  "cards": [
+    {
+      "in": 12, "out": 78,
+      "eyebrow": "mouse hippocampus CA3 · 1 x 1 x 0.1 mm",
+      "title": "Mossy fibers first",
+      "body": "The incoming signal from dentate gyrus. More than 55,000 cross this block, each one carrying the sparse output of a single granule cell."
+    },
+    {
+      "in": 92, "out": 156,
+      "eyebrow": "deep and superficial",
+      "title": "The pyramidal population",
+      "body": "The cells the mossy fibers drive, arriving by sublayer. 1,815 pyramidal cells were reconstructed in this volume."
+    },
+    {
+      "in": 172, "out": 240,
+      "eyebrow": "in blue",
+      "title": "Thorny pyramidal cells",
+      "body": "The cells carrying thorny excrescences, the balloon like clusters of spine that a mossy fiber terminal wraps around. A thorny cell takes a median of 48 mossy fiber inputs."
+    },
+    {
+      "in": 256, "out": 326,
+      "eyebrow": "in purple",
+      "title": "Sparsely thorny cells",
+      "body": "The same class of neuron with far fewer of those spines, and a median of 4 mossy fiber inputs. The two types separate categorically rather than along a continuum."
+    },
+    {
+      "in": 342, "out": 424,
+      "eyebrow": "229 in the volume",
+      "title": "Inhibitory interneurons last",
+      "body": "Driven by the same mossy fibers, and targeting the pyramidal cells around them. This is feedforward inhibition, and it prefers the thorny cells."
+    }
+  ]
+}
