@@ -647,7 +647,7 @@ D:\Meshes\queue.ps1 add -Project retina -Name ds_mosaic `
   -Minutes 120 -Note "beats 1,120,300,560 verified as stills" -AddedBy "chat: retina ds"
 ```
 
-It runs at 03:00, waits for a free GPU, moves old output aside, encodes for the
+It runs at 01:00, waits for a free GPU, moves old output aside, encodes for the
 web, logs, and puts the result on the review shelf. The rule set is
 `RENDER_PROTOCOL.md` in [render-queue](https://github.com/amyleesterling/render-queue)
 and it is authoritative. [queue/README.md](queue/README.md) is the summary.
@@ -942,11 +942,11 @@ Things that could not be determined from `D:\Meshes` and the three repos on
 14. **Folders in `D:\Meshes` that belong to other work** were inventoried and
     not copied: `mouse-wiring` (70 GB), `fafb`, `cryoet`, `molecules`, `shiu`.
     Whether any of them should join this repo is undecided.
-15. **The queue runs at 03:00, and the protocol on `main` says 02:00.** The
-    `MeshesRenderQueue` task's daily trigger is 03:00 (read 5 October 2026).
-    An uncommitted edit in the render-queue clone on Aurelius says it moved on
-    7 September. The task also has a second trigger with a 12:15 start, whose
-    purpose is not recorded. This guide says 03:00.
+15. **The queue runs at 01:00.** Ames moved the `MeshesRenderQueue` daily
+    trigger to 01:00 on 5 October 2026. It had been 03:00 since 7 September and
+    02:00 before that, and older notes and script headers still say one or the
+    other. The task also has a one-time trigger from 9 September, already
+    past, whose purpose is not recorded.
 16. **The Blender overlay scripts predate the words in post rule.** They
     composite straight onto copies of the frames. None writes a separate
     transparent overlay movie yet.

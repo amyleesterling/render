@@ -23,7 +23,7 @@ and the `MeshesRenderQueue` scheduled task. Pointing is cleaner.
 
 > If you built an animation, add it to the queue and stop. Do not render it.
 
-There is one GPU and several sessions. Rendering is the queue's job, at 03:00 on
+There is one GPU and several sessions. Rendering is the queue's job, at 01:00 on
 Aurelius, when nothing else is competing for the card.
 
 ## The commands
@@ -79,6 +79,5 @@ and accepts them.
 
 ## The nightly task
 
-`MeshesRenderQueue`, daily at 03:00, ten hour limit, starts late if the machine
-was asleep. The protocol on `main` of render-queue still says 02:00. The task
-was read on 5 October 2026 and its daily trigger is 03:00. Do not retime or edit it from a session unless Ames asks.
+`MeshesRenderQueue`, daily at 01:00 since 5 October 2026, ten hour limit, starts
+late if the machine was asleep. Do not retime or edit it from a session unless Ames asks.
