@@ -13,14 +13,17 @@ CAVE  ->  fetch_meshes.py  ->  one GLB per cell, in micrometres, plus index.json
 
 It was built for Eyewire II in the ca3 site repo, and that repo is still where it
 is developed: [amyleesterling/ca3, `eyewire2/`](https://github.com/amyleesterling/ca3/tree/main/eyewire2).
-The files in `eyewire2/` here are a snapshot taken 4 October 2026.
+The files in `eyewire2/` here are a snapshot of its `main` taken 5 October 2026.
 
 | file | from | what |
 |---|---|---|
 | `eyewire2/fetch_meshes.py` | ca3 `main` | pulls meshes through CAVE, decimates, writes `<segid>.glb` and `index.json` |
-| `eyewire2/col3d.html` | ca3 branch `claude/volume-page-content-review-robkz4` | the 3D column of cells in three.js. On `main` of ca3 since 5 October; this copy is the branch version from the day before |
+| `eyewire2/col3d.html` | ca3 `main` | the 3D column of cells in three.js. `?layer=plate` draws the cells alone, `?layer=overlay` draws every word on a transparent page |
+| `eyewire2/captions.json` | ca3 `main` | every word on screen and when it shows |
+| `eyewire2/render.sh` | ca3 `main` | renders a layer in resumable chunks and joins them |
+| `eyewire2/compose.py` | ca3 `main` | lays the overlay on the plate, rebuilds the backdrop blur, holds the last frame |
 | `eyewire2/index.html` | ca3 `main` | the earlier film, one dot per soma, from `cells.json` |
-| `eyewire2/cap.js` | ca3 `main` | frame capture: Playwright screenshots piped into ffmpeg |
+| `eyewire2/cap.js` | ca3 `main` | frame capture: Playwright screenshots piped into ffmpeg. `ALPHA=1` keeps transparency, `FROM=` and `TO=` render a frame range |
 | `eyewire2/upstream/README.md` | ca3 `main` | the original README for the dot film |
 
 ## 1. Meshes
@@ -65,33 +68,54 @@ Everything is a pure function of the frame number. That is what makes a headless
 capture identical to what plays in a browser, and it is the one design rule for
 any new page on this path.
 
-It expects three things beside it that are not in this snapshot: `meshes/`,
-`fonts/inter-latin.woff2`, and three.js at `../web/vendor/` (`three.module.min.js`
+It expects four things beside it that are not in this snapshot: `meshes/`,
+`fonts/inter-latin.woff2`, the `scifi/` components (in the ca3 repo under
+`eyewire2/scifi/`), and three.js at `../web/vendor/` (`three.module.min.js`
 and `loaders/GLTFLoader.js`, which live in the ca3 repo under `web/vendor/`).
 
 Lighting is a hemisphere light plus a key and a rim directional light, ACES
 filmic tone mapping. That is a different look from the Blender house style and
 it is deliberate: this path trades the subsurface look for reach.
 
-## 3. Capture
+## 3. Capture, as two layers
+
+Words go on in post, never in the render. RENDERING.md section 9 has the rule.
+The picture and the words are captured separately and put together afterwards.
 
 ```bash
-python -m http.server 8765 --directory <the folder that contains eyewire2/ and web/>
-ANIM_URL=http://127.0.0.1:8765/eyewire2/col3d.html node eyewire2/cap.js probe 2 10 20
-ANIM_URL=http://127.0.0.1:8765/eyewire2/col3d.html node eyewire2/cap.js full column.mp4
+python -m http.server 8766 --directory <the folder that contains eyewire2/ and web/>
+export FFMPEG=...   # an ffmpeg with libx264
+
+# beat check first
+ANIM_URL=http://127.0.0.1:8766/eyewire2/col3d.html node eyewire2/cap.js probe 2 10 20
+
+# plate: the cells alone. The slow part, done once
+eyewire2/render.sh 'col3d.html?meshes=meshes&layer=plate' plate.mp4
+# overlay: every word on a transparent background. Minutes
+ALPHA=1 eyewire2/render.sh 'col3d.html?meshes=meshes&layer=overlay' overlay.mov
+# composite
+python3 eyewire2/compose.py plate.mp4 overlay.mov film.mp4
 ```
 
 - `probe <seconds...>` writes one PNG per time. **This is the beat check for this
-  path. Look at the stills before running `full`.**
-- `full out.mp4` steps every frame, screenshots it and pipes PNGs into ffmpeg:
-  H.264, `crf 17`, `yuv420p`, `+faststart`, 1920x1080 at 30 fps.
+  path.** With no `layer` the page draws both layers, so the stills show the
+  words on the picture. Look at them before rendering.
+- `render.sh` renders in chunks of 240 frames (`CHUNK=`) and keeps the finished
+  ones, so after a restart the same command picks up where it stopped. It
+  expects the site on port 8766 and `FFMPEG` set. The plate stops where the
+  action freezes; the overlay runs to the end.
+- To change a word: edit `captions.json`, capture the overlay again, run
+  `compose.py`. The plate is not touched.
+- `compose.py` holds the plate's last frame for as long as the overlay runs, and
+  rebuilds the blur behind the closing card from the plate. It needs the
+  `imageio-ffmpeg` package unless `FFMPEG` is set.
+- The plate is H.264, `crf 17`, `yuv420p`, 1920x1080 at 30 fps. The overlay is
+  PNG frames in a MOV, straight alpha.
 - Chromium runs with SwiftShader (`--use-angle=swiftshader`), so WebGL renders on
   the CPU. Slow per frame, and it needs no GPU at all.
 - `cap.js` requires Playwright from `/opt/node22/lib/node_modules/playwright`,
   the path in the cloud sandbox it was written in. Elsewhere, change that line to
   `require('playwright')` after `npm install playwright`.
-- Its default URL is `http://127.0.0.1:8765/anim.html`. Always set `ANIM_URL`.
-  `FFMPEG` overrides the ffmpeg binary.
 
 ## 4. After capture
 

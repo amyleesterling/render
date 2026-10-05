@@ -1,27 +1,35 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>A column of bipolar cells</title>
+<title>A patch of bipolar cells</title>
+<link rel="stylesheet" href="scifi/badge-award.css">
+<link rel="stylesheet" href="scifi/confetti-burst.css">
 <style>
 @font-face{font-family:Inter;font-weight:100 900;src:url(fonts/inter-latin.woff2) format("woff2")}
 html,body{margin:0;background:#03050f;overflow:hidden}
+.layer-plate #vig,.layer-plate #scrim,.layer-plate #hud,.layer-plate #wm,.layer-plate #black,.layer-plate #finale,.layer-plate #fveil{display:none}
+/* the finale: the counter flies to the centre over the frozen cells and rolls on to 10,000 */
+#fveil{position:absolute;inset:0;background:#03050f;opacity:0;pointer-events:none}
+#finale{position:absolute;left:0;right:0;top:300px;text-align:center;pointer-events:none;opacity:0}
+#fnum{display:inline-block;font-size:230px;font-weight:300;letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums;
+  transform-origin:50% 50%;text-shadow:0 0 60px rgba(120,160,255,.3)}
+#fnum.gold{color:#ffd56a;text-shadow:0 0 80px rgba(255,200,90,.55),0 0 160px rgba(255,180,60,.25)}
+#fline{font-size:31px;font-weight:300;color:rgba(255,255,255,.92);margin:34px auto 0;white-space:nowrap;line-height:1.4;text-shadow:0 2px 18px rgba(3,5,15,.9)}
+.layer-overlay,.layer-overlay body{background:transparent}
+.layer-overlay canvas#c{visibility:hidden}
 body{width:1920px;height:1080px;position:relative;font-family:Inter,system-ui,sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
 canvas{position:absolute;inset:0;display:block;width:1920px;height:1080px}
 #vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 45% 50%, rgba(3,5,15,0) 50%, rgba(3,5,15,.6) 100%)}
 .hud{position:absolute;inset:0;pointer-events:none}
 #tl{position:absolute;left:84px;top:72px}
 .eyebrow{font-size:17px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:500}
-#count{font-size:148px;font-weight:300;letter-spacing:-.035em;line-height:1;margin:18px 0 6px;font-variant-numeric:tabular-nums;text-shadow:0 0 40px rgba(120,160,255,.25)}
-#clabel{font-size:26px;color:rgba(255,255,255,.78)}
-#sub{font-size:22px;color:rgba(255,255,255,.5);margin-top:26px;max-width:520px;line-height:1.45}
-#board{position:absolute;right:84px;top:92px;width:400px;opacity:0}
-#board h3{margin:0 0 20px;font-size:17px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:500}
-.row{display:flex;align-items:center;height:38px;font-size:19px;font-variant-numeric:tabular-nums}
-.row .dot{width:12px;height:12px;border-radius:50%;margin-right:14px;flex:none;box-shadow:0 0 10px currentColor}
-.row .name{width:168px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:rgba(255,255,255,.88);font-weight:500}
-.row .bar{flex:1;height:5px;background:rgba(255,255,255,.08);border-radius:3px;margin:0 14px;overflow:hidden}
-.row .bar i{display:block;height:100%;background:currentColor;border-radius:3px;box-shadow:0 0 12px currentColor}
-.row .n{width:56px;text-align:right;color:rgba(255,255,255,.7)}
-#cap{position:absolute;left:84px;bottom:76px;font-size:24px;color:rgba(255,255,255,.72);max-width:900px;line-height:1.4}
+#count{font-size:92px;font-weight:300;letter-spacing:-.035em;line-height:1;margin:18px 0 6px;font-variant-numeric:tabular-nums;text-shadow:0 0 40px rgba(120,160,255,.25)}
+#clabel{font-size:22px;color:rgba(255,255,255,.78)}
+#cap{position:absolute;left:84px;bottom:82px;font-size:23px;color:rgba(255,255,255,.78);max-width:1300px;line-height:1.4}
+#scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg, rgba(3,5,15,.78) 0%, rgba(3,5,15,0) 24%, rgba(3,5,15,0) 76%, rgba(3,5,15,.85) 100%)}
+#legend{position:absolute;left:84px;right:250px;bottom:34px;display:flex;flex-wrap:wrap;gap:6px 26px;font-size:19px;font-weight:500;color:rgba(255,255,255,.9)}
+#legend .chip{display:flex;align-items:center;gap:9px;white-space:nowrap;transition:none}
+#legend .chip i{width:11px;height:11px;border-radius:50%;flex:none}
+#legend .chip em{font-style:normal;font-weight:400;color:rgba(255,255,255,.55);font-variant-numeric:tabular-nums}
 #cap b{color:#fff;font-weight:600}
 #wm{position:absolute;right:38px;bottom:28px;font-size:24px;font-weight:500;color:rgba(255,255,255,.5)}
 .card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
@@ -36,39 +44,54 @@ canvas{position:absolute;inset:0;display:block;width:1920px;height:1080px}
 #end .names span{white-space:nowrap}
 #end .names span+span::before{content:"·";color:rgba(255,255,255,.3);margin:0 .6em}
 #end .url{margin-top:48px;font-size:30px;font-weight:500}
-#black{position:absolute;inset:0;background:#03050f;pointer-events:none}
+#black{position:absolute;inset:0;background:#03050f;pointer-events:none;z-index:20000}
+#wm{z-index:20001}
+/* the award, for a film rather than a click: the cells stay visible through a
+   lighter backdrop, the card is sized for 1080p, and there is nothing to click */
+.nge-hero-overlay{background:radial-gradient(ellipse at center, rgba(6,12,28,.45) 0%, rgba(0,0,0,.78) 100%);cursor:default}
+.nge-hero-card{zoom:1.2}
+.nge-hero-hint{display:none}
+.nge-hero-subtitle{font-size:19px;max-width:none;white-space:nowrap;color:rgba(200,215,235,.85)}
+.holoburst-canvas{z-index:10001}   /* the confetti in front of the card, not behind its blur */
 #load{position:absolute;left:84px;bottom:140px;font-size:18px;color:rgba(255,255,255,.4)}
 </style>
 <canvas id="c" width="1920" height="1080"></canvas>
 <div id="vig"></div>
+<div id="scrim"></div>
 <div class="hud" id="hud">
   <div id="tl">
     <div class="eyebrow">Eyewire II · bipolar cells</div>
     <div id="count">0</div>
-    <div id="clabel">cells in this column</div>
-    <div id="sub"></div>
+    <div id="clabel">cells</div>
   </div>
-  <div id="board"><h3 id="bh">Proofreaders</h3><div id="rows"></div></div>
   <div id="cap"></div>
+  <div id="legend"></div>
 </div>
+<div id="fveil"></div>
+<div id="finale"><div id="fnum"></div><div id="fline"></div></div>
 <div id="wm">eyewire.ai</div>
-<div class="card" id="title"><h1><b>10,000</b> cells, up close</h1><p>one column of the retina, every branch of every cell</p></div>
-<div class="card" id="end">
-  <div class="mark">Eyewire II</div>
-  <h1><b>10,000</b> bipolar cells</h1>
-  <div class="names" id="names"></div>
-  <div class="url">eyewire.ai</div>
-</div>
 <div id="black"></div>
 <div id="load"></div>
 
+<script src="scifi/confetti-burst.js"></script>
+<script src="scifi/badge-award.js"></script>
 <script type="importmap">{"imports":{"three":"../web/vendor/three.module.min.js","three/addons/":"../web/vendor/"}}</script>
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from '../web/vendor/loaders/GLTFLoader.js';
 
 const FPS = 30, $ = id => document.getElementById(id), fmt = n => n.toLocaleString('en-US');
-const MESHES = new URLSearchParams(location.search).get('meshes') || 'meshes';
+const QS = new URLSearchParams(location.search);
+const MESHES = QS.get('meshes') || 'meshes';
+// ?layer=plate renders the cells alone; ?layer=overlay renders every word, fade and the award on a
+// transparent page with no 3D drawn; compose.py lays one on the other. No layer: both, as before.
+const LAYER = QS.get('layer') || '';
+const TEXT = await (await fetch('captions.json', { cache: 'no-store' })).json();
+if (LAYER === 'plate') document.documentElement.classList.add('layer-plate');
+if (LAYER === 'overlay') document.documentElement.classList.add('layer-overlay');
+document.querySelector('.eyebrow').textContent = TEXT.eyebrow;
+document.getElementById('clabel').textContent = TEXT.counter_label;
+document.getElementById('wm').textContent = TEXT.watermark;
 const IDX = await (await fetch(`${MESHES}/index.json`)).json();
 const cells = IDX.cells.slice().sort((a,b) => a.date.localeCompare(b.date));
 const N = cells.length;
@@ -96,7 +119,7 @@ const scene = new THREE.Scene();
 scene.add(new THREE.HemisphereLight(0xdfe8ff, 0x0a1030, 1.1));
 const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(1, -1.2, 1.6); scene.add(key);
 const rim = new THREE.DirectionalLight(0x8fb5ff, 0.9); rim.position.set(-1.2, 1, -0.4); scene.add(rim);
-const cam = new THREE.PerspectiveCamera(30, 1920/1080, 1, 5000);
+const cam = new THREE.PerspectiveCamera(12, 1920/1080, 1, 12000);
 
 // the column centre, in µm; z up (the outer retina, somas, is at high z)
 const centre = new THREE.Vector3();
@@ -117,81 +140,169 @@ await Promise.all(cells.map(c => new Promise(res => loader.load(`${MESHES}/${c.s
   $('load').textContent = `${++loaded}/${N}`; res();
 }, undefined, () => res()))));
 $('load').textContent = '';
-const live = cells.filter(c => c.mesh);
+// a cell whose branches run far outside the patch reads as a stray; leave those out
+// the patch's radius from the bulk of the cells, so one row with a wrong coordinate cannot set it
+const somaDist = c => Math.hypot(c.soma_um[0]-centre.x, c.soma_um[1]-centre.y);
+const dists = cells.filter(c => c.mesh).map(somaDist).sort((a,b) => a-b);
+const somaSpread = dists[Math.floor(0.98 * (dists.length - 1))];
+const live = cells.filter(c => {
+  if (!c.mesh) return false;
+  if (somaDist(c) > somaSpread * 1.15) { scene.remove(c.mesh); console.log('left out', c.segid, 'soma at', somaDist(c).toFixed(0)); return false; }
+  const b = c.mesh.geometry.boundingBox;
+  const reach = Math.max(Math.hypot(b.min.x-centre.x, b.min.y-centre.y), Math.hypot(b.max.x-centre.x, b.max.y-centre.y),
+                         Math.hypot(b.min.x-centre.x, b.max.y-centre.y), Math.hypot(b.max.x-centre.x, b.min.y-centre.y));
+  if (reach > somaSpread + 22) { c.mesh.visible = false; scene.remove(c.mesh); console.log('left out', c.segid, c.type, 'reach', reach.toFixed(0)); return false; }
+  return true;
+});
 console.log('loaded', live.length, 'of', N, 'z range', zLo, zHi);
 const zMid = (zLo + zHi) / 2;
 const target0 = new THREE.Vector3(centre.x, centre.y, zMid);
-// how wide the column is, so the camera distance scales with the subset
-const spread = Math.max(...live.map(c => Math.hypot(c.soma_um[0]-centre.x, c.soma_um[1]-centre.y))) + 12;
-const DK = spread / 50;   // the 170-cell column, spread ~50 µm, framed well at the distances below
+// the patch's diameter sets both framings: from above it fills the frame's height,
+// from the side its width runs edge to edge
+const spread = somaSpread + 10;
+const D = 2 * spread, tanV = Math.tan(cam.fov * Math.PI / 360), tanH = tanV * 1920 / 1080;
+const dTop = D / (0.84 * 2 * tanV);
+// from the side: as wide as the frame allows, but the nearest cells, which look biggest,
+// must keep the retina's full depth inside the band between the counter and the legend
+const zExt = zHi - zLo, BAND = 720;
+const dSide = Math.max(D / (1.0 * 2 * tanH), spread + 1080 * zExt / (2 * BAND * tanV));
+console.log('framing', 'spread', spread.toFixed(1), 'D', D.toFixed(1), 'dTop', dTop.toFixed(0), 'dSide', dSide.toFixed(0), 'centre', centre.x.toFixed(0), centre.y.toFixed(0));
 
 // ---- HUD --------------------------------------------------------------------------
-const rowsEl = $('rows');
-function buildRows(items) { rowsEl.innerHTML = items.map(([n,h]) => `<div class="row" style="color:${h}"><span class="dot"></span><span class="name">${n}</span><span class="bar"><i style="width:0"></i></span><span class="n">0</span></div>`).join(''); }
+const legendEl = $('legend');
+function buildLegend(items, counts) { legendEl.innerHTML = items.map(([n,h,k]) => `<span class="chip"><i style="background:${h};box-shadow:0 0 9px ${h}"></i>${n}${counts ? ` <em>${counts[k]}</em>` : ''}</span>`).join(''); }
 const playerCount = {}, typeCount = {};
 live.forEach(c => { playerCount[c.proofreader] = (playerCount[c.proofreader]||0)+1; typeCount[c.typeKey] = (typeCount[c.typeKey]||0)+1; });
 const playerItems = PLAYERS.map((p,i) => [p, PLAYER_HEX[i], p]).filter(([p]) => playerCount[p]);
 const typeItems = TYPE_LEGEND.concat([['other', OTHER_HEX]]).map(([t,h]) => [t === 'other' ? 'unassigned' : t, h, t]).filter(([,,k]) => typeCount[k]);
-$('names').innerHTML = PLAYERS.filter(p => playerCount[p]).map(p => `<span>${p}</span>`).join(' ');
-$('sub').textContent = `${fmt(N)} of the 10,081 proofread cells, every one whose cell body lies within 38 µm of a point in the imaging box.`;
 
 // ---- timeline (seconds) ------------------------------------------------------------
-const T = { titleIn: 0.6, titleOut: 3.4, fill0: 4.0, fill1: 22.0, typeIn: 24.0, typeDone: 26.0, playerIn: 33.0, playerDone: 35.0, end0: 42.0, end1: 47.0 };
-window.TOTAL_FRAMES = Math.round((T.end1 + 1.0) * FPS);
+// everything 3.4 s earlier than the cut with an opening title, so the films splice frame for frame
+const OFF = 3.4;
+const F = TEXT.finale;
+const T = { fill0: 0, fill1: 27.0-OFF, playerIn: 33.0-OFF, playerDone: 35.0-OFF,
+            freeze: F.at, roll0: F.at + F.roll_starts_after, roll1: F.at + F.roll_starts_after + F.roll_seconds,
+            award: TEXT.award.at, end1: TEXT.award.at + 7.0 };
+// the plate stops where the cells freeze; compose.py holds its last frame under the finale
+window.TOTAL_FRAMES = LAYER === 'plate' ? Math.round(T.freeze * FPS) + 1 : Math.round((T.end1 + 1.0) * FPS);
 const ease = x => x<0?0:x>1?1:x*x*(3-2*x), sm = (t,a,b) => ease((t-a)/(b-a)), lerp = (a,b,x) => a+(b-a)*x;
 let board = '';
 const tmp = new THREE.Color();
 
 window.setFrame = function(f) {
   const t = f / FPS;
-  // arrivals, in completion order, eased so the first and last cells are not rushed
-  const u = sm(t, T.fill0, T.fill1);
-  const arrived = u * live.length;
+  const ts = Math.min(t, T.freeze);              // the cells and the camera stop at the freeze
+  // arrivals, in completion order, eased so the first and last cells are not rushed;
+  // the first cell is already there on the first frame
+  const u = sm(ts, T.fill0, T.fill1);
+  const arrived = 1 + u * (live.length - 1);
   let n = 0;
-  const kType = sm(t, T.typeIn, T.typeDone), kPlayer = sm(t, T.playerIn, T.playerDone);
+  const kPlayer = sm(ts, T.playerIn, T.playerDone);
   live.forEach((c, i) => {
     const age = arrived - i;                      // in cells; ~8 cells per second
     if (age <= 0) { c.mesh.visible = false; return; }
     n++;
     c.mesh.visible = true;
-    const k = Math.min(1, age / 6);               // fade over ~0.75 s
+    const k = i === 0 ? 1 : Math.min(1, age / 10);   // fade over ~0.7 s at ~15 cells a second
     c.mat.opacity = k; c.mat.transparent = k < 1; c.mat.depthWrite = k > 0.4;
     c.mat.emissiveIntensity = 0.9 * (1-k)*(1-k);
-    tmp.copy(c.cRandom).lerp(c.cType, kType).lerp(c.cPlayer, kPlayer);
+    tmp.copy(c.cType).lerp(c.cPlayer, kPlayer);
     c.mat.color.copy(tmp);
   });
   // camera: a slow orbit, from above during the fill, swinging to the side as the types appear
-  const elev = lerp(1.22, 0.66, sm(t, T.fill0, T.fill1)) - 0.54*sm(t, T.typeIn - 0.5, T.typeDone + 2.5);
-  const az = -0.6 + 0.04 * t;
-  const dist = DK * (lerp(262, 236, sm(t, T.fill0, T.fill1)) + 30*sm(t, T.typeIn, T.typeDone + 2));
+  // from above at first, so the mosaic of somas reads; down to the side view by the time the patch is complete
+  const kSide = sm(ts, T.fill0 + 2.6, T.fill1 + 1);
+  const elev = lerp(1.2, 0.07, kSide);
+  const az = -0.6 + 0.03 * (ts + OFF);
+  const dist = lerp(dTop, dSide, kSide);
   cam.position.set(target0.x + dist*Math.cos(elev)*Math.cos(az), target0.y + dist*Math.cos(elev)*Math.sin(az), target0.z + dist*Math.sin(elev));
   cam.up.set(0,0,1); cam.lookAt(target0);
-  // frame the column left of centre so the board has room
-  cam.setViewOffset(1920, 1080, 160, -64, 1920, 1080);
+  cam.clearViewOffset();
 
   // HUD
   $('count').textContent = fmt(n);
-  if (t < T.typeIn) { if (board !== '') { board = ''; } $('board').style.opacity = 0; }
-  else if (t < T.playerIn - 0.6) { if (board !== 'types') { board = 'types'; buildRows(typeItems); $('bh').textContent = 'Bipolar cell types'; }
-    const kb = sm(t, T.typeIn, T.typeDone + 0.4), mx = Math.max(...Object.values(typeCount));
-    $('board').style.opacity = sm(t, T.typeIn, T.typeIn + 0.8);
-    [...rowsEl.children].forEach((r,i) => { const v = Math.round(typeCount[typeItems[i][2]]*kb); r.querySelector('i').style.width = (100*v/mx)+'%'; r.querySelector('.n').textContent = v; }); }
-  else { if (board !== 'players') { board = 'players'; buildRows(playerItems); $('bh').textContent = 'Proofreaders'; }
-    const kb = sm(t, T.playerIn, T.playerDone + 0.4), mx = Math.max(...Object.values(playerCount));
-    $('board').style.opacity = sm(t, T.playerIn - 0.6, T.playerIn + 0.4);
-    [...rowsEl.children].forEach((r,i) => { const v = Math.round(playerCount[playerItems[i][2]]*kb); r.querySelector('i').style.width = (100*v/mx)+'%'; r.querySelector('.n').textContent = v; }); }
-  let cap = `Real cells from the segmentation, arriving in the order they were finished.`;
-  if (t >= T.typeIn) cap = `Coloured by <b>type</b>. Seen from the side, each type's axon ends at its own depth in the inner plexiform layer.`;
-  if (t >= T.playerIn - 0.6) cap = `Recalled by the <b>person who proofread</b> each one.`;
-  $('cap').innerHTML = cap;
+  if (t < T.playerIn - 0.6) {
+    if (board !== 'types') { board = 'types'; buildLegend(typeItems); }
+    const seen = new Set(); for (let i=0;i<n;i++) seen.add(live[i].typeKey);
+    [...legendEl.children].forEach((ch,i) => ch.style.opacity = seen.has(typeItems[i][2]) ? 1 : 0.22);
+    legendEl.style.opacity = 1;
+  } else {
+    if (board !== 'players') { board = 'players'; buildLegend(playerItems, playerCount); }
+    legendEl.style.opacity = sm(t, T.playerIn - 0.6, T.playerIn + 0.4);
+  }
+  const c = TEXT.captions.find(c => t >= c.from && t < c.to);
+  $('cap').innerHTML = c ? c.html : '';
 
-  $('hud').style.opacity = sm(t, T.titleOut, T.fill0) * (1 - sm(t, T.end0-0.8, T.end0));
-  $('title').style.opacity = sm(t, T.titleIn, T.titleIn+1.0) * (1 - sm(t, T.titleOut-0.8, T.titleOut));
-  $('end').style.opacity = sm(t, T.end0, T.end0+1.0);
-  $('black').style.opacity = (1 - sm(t, 0, 0.8)) + sm(t, T.end1, T.end1+1.0);
-  $('c').style.opacity = 1 - 0.7*sm(t, T.end0, T.end0+1.0);
-  renderer.render(scene, cam);
+  finale(t, n);
+  $('black').style.opacity = sm(t, T.end1, T.end1 + 1.0);
+  if (LAYER !== 'overlay') renderer.render(scene, cam);
+  if (LAYER !== 'plate') award(t);
 };
+
+// ---- the finale: the counter flies to the centre and rolls on to 10,000 --------------
+const fnum = $('fnum'), fline = $('fline'), countEl = $('count');
+fline.textContent = F.line.replace('{n}', fmt(live.length));
+let flip = null;          // where the counter sits, as a transform of the big centred number
+const easeIO = x => x<0?0:x>1?1:(x<.5 ? 4*x*x*x : 1 - Math.pow(-2*x+2, 3)/2);
+function finale(t, n) {
+  if (t < T.freeze) {
+    $('hud').style.opacity = 1; countEl.style.opacity = 1;
+    $('finale').style.opacity = 0; $('fveil').style.opacity = 0; flip = null; return;
+  }
+  if (!flip) {
+    fnum.textContent = fmt(n); fnum.style.transform = 'none';
+    const a = countEl.getBoundingClientRect(), b = fnum.getBoundingClientRect();
+    flip = { dx: (a.left + a.width/2) - (b.left + b.width/2), dy: (a.top + a.height/2) - (b.top + b.height/2), s: a.height / b.height };
+  }
+  // the counter hands over to the big number in the same place, then the rest of the HUD goes
+  countEl.style.opacity = 0;
+  $('hud').style.opacity = 1 - sm(t, T.freeze, T.freeze + 0.6);
+  $('finale').style.opacity = 1 - sm(t, T.award - 0.1, T.award + 0.4);
+  $('fveil').style.opacity = 0.62 * sm(t, T.freeze, T.freeze + 1.0);
+  const k = easeIO((t - T.freeze) / 1.1);
+  fnum.style.transform = `translate(${flip.dx*(1-k)}px, ${flip.dy*(1-k)}px) scale(${lerp(flip.s, 1, k)})`;
+  const r = easeIO((t - T.roll0) / (T.roll1 - T.roll0));
+  const v = t >= T.roll1 ? F.roll_to : Math.round(lerp(n, F.roll_to, r));
+  fnum.textContent = fmt(v);
+  fnum.classList.toggle('gold', v >= F.roll_to);
+  fline.style.opacity = sm(t, T.freeze + 0.8, T.freeze + 1.5);
+  fline.style.transform = `translateY(${12 * (1 - sm(t, T.freeze + 0.8, T.freeze + 1.5))}px)`;
+}
+
+// ---- the closing award: scifi-ui's EyeWire II badge unlock ------------------------
+// Captured frame by frame, so under the capture the page runs on a virtual clock:
+// timers, animation frames and every CSS animation follow the film's time, not the
+// wall clock, and the confetti steps at the 60 Hz it was written for.
+const VCLOCK = !!navigator.webdriver;
+let vNow = 0, vId = 1, vTimers = [], vRafs = [], awardOn = false;
+const births = new WeakMap();
+if (VCLOCK) {
+  performance.now = () => vNow;
+  window.setTimeout = (fn, ms = 0, ...a) => { const id = vId++; vTimers.push({ id, at: vNow + (+ms || 0), fn, a }); return id; };
+  window.clearTimeout = id => { vTimers = vTimers.filter(x => x.id !== id); };
+  window.requestAnimationFrame = fn => { const id = vId++; vRafs.push({ id, fn }); return id; };
+  window.cancelAnimationFrame = id => { vRafs = vRafs.filter(r => r.id !== id); };
+}
+function registerAnimations() { for (const a of document.getAnimations()) if (!births.has(a)) births.set(a, vNow); }
+function vAdvance(toMs) {
+  while (vNow < toMs - 1e-6) {
+    vNow = Math.min(toMs, vNow + 1000 / 60);
+    const due = vTimers.filter(x => x.at <= vNow); vTimers = vTimers.filter(x => x.at > vNow);
+    due.forEach(x => x.fn(...x.a));
+    const rs = vRafs; vRafs = []; rs.forEach(r => r.fn(vNow));
+    if (awardOn) registerAnimations();
+  }
+}
+function award(t) {
+  if (!VCLOCK) { if (t >= T.award && !awardOn) { awardOn = true; fireAward(); } if (t < T.award && awardOn) { awardOn = false; window.holoaward && holoaward.close(); } return; }
+  if (t < T.award) return;
+  if (!awardOn) { vAdvance(T.award * 1000); awardOn = true; fireAward(); registerAnimations(); }
+  vAdvance(t * 1000);
+  for (const a of document.getAnimations()) { if (!births.has(a)) births.set(a, vNow); a.pause(); a.currentTime = vNow - births.get(a); }
+}
+function fireAward() {
+  holoaward({ name: TEXT.award.name, desc: TEXT.award.desc, img: TEXT.award.img });
+}
 await document.fonts.ready;
 window.setFrame(0);
 window.READY = true;
