@@ -1,0 +1,314 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>10,000 bipolar cells</title>
+<style>
+@font-face{font-family:Inter;font-weight:100 900;src:url(fonts/inter-latin.woff2) format("woff2")}
+html,body{margin:0;background:#03050f;overflow:hidden}
+body{width:1920px;height:1080px;position:relative;font-family:Inter,system-ui,sans-serif;color:#fff;
+  -webkit-font-smoothing:antialiased}
+canvas{position:absolute;inset:0;display:block;width:1920px;height:1080px}
+#vig{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 42% 50%, rgba(3,5,15,0) 45%, rgba(3,5,15,.55) 100%)}
+.hud{position:absolute;inset:0;pointer-events:none}
+.fade{transition:none}
+/* top-left: counter */
+#tl{position:absolute;left:84px;top:72px}
+.eyebrow{font-size:17px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:500}
+#count{font-size:148px;font-weight:300;letter-spacing:-.035em;line-height:1;margin:18px 0 6px;font-variant-numeric:tabular-nums;
+  color:#fff;text-shadow:0 0 40px rgba(120,160,255,.25)}
+#count.gold{color:#ffd56a;text-shadow:0 0 60px rgba(255,200,90,.45)}
+#clabel{font-size:26px;font-weight:400;color:rgba(255,255,255,.78);letter-spacing:.01em}
+#date{font-size:22px;color:rgba(255,255,255,.5);margin-top:26px;font-variant-numeric:tabular-nums;font-weight:400}
+/* right: leaderboard / legend */
+#board{position:absolute;right:84px;top:92px;width:400px}
+#board h3{margin:0 0 20px;font-size:17px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:500}
+.row{display:flex;align-items:center;height:38px;font-size:19px;font-variant-numeric:tabular-nums}
+.row .dot{width:12px;height:12px;border-radius:50%;margin-right:14px;flex:none;box-shadow:0 0 10px currentColor}
+.row .name{width:168px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:rgba(255,255,255,.88);font-weight:500}
+.row .bar{flex:1;height:5px;background:rgba(255,255,255,.08);border-radius:3px;margin:0 14px;overflow:hidden}
+.row .bar i{display:block;height:100%;background:currentColor;border-radius:3px;box-shadow:0 0 12px currentColor}
+.row .n{width:56px;text-align:right;color:rgba(255,255,255,.7);font-weight:400}
+/* bottom-left caption */
+#cap{position:absolute;left:84px;bottom:76px;font-size:24px;color:rgba(255,255,255,.72);font-weight:400;max-width:900px;line-height:1.4}
+#cap b{color:#fff;font-weight:600}
+/* watermark */
+#wm{position:absolute;right:38px;bottom:28px;font-size:24px;font-weight:500;color:rgba(255,255,255,.5);letter-spacing:.01em}
+/* title + end cards */
+.card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+#title h1{font-size:176px;font-weight:200;letter-spacing:-.04em;margin:0;line-height:1;color:#fff;
+  text-shadow:0 0 80px rgba(120,160,255,.35)}
+#title h1 b{font-weight:600;color:#ffd56a;text-shadow:0 0 80px rgba(255,200,90,.45)}
+#title p{font-size:34px;font-weight:300;color:rgba(255,255,255,.8);margin:34px 0 0;letter-spacing:.01em}
+#title p b{font-weight:500;color:#fff}
+#end .mark{font-size:26px;letter-spacing:.42em;text-transform:uppercase;font-weight:500;color:rgba(255,255,255,.6)}
+#end h1{font-size:112px;font-weight:200;letter-spacing:-.03em;margin:22px 0 0;line-height:1.05}
+#end h1 b{font-weight:600;color:#ffd56a}
+#end .names{margin-top:44px;font-size:26px;font-weight:400;color:rgba(255,255,255,.85);max-width:1200px;line-height:1.7}
+#end .names span{white-space:nowrap}
+#end .names span+span::before{content:"·";color:rgba(255,255,255,.3);margin:0 .6em}
+#end .url{margin-top:48px;font-size:30px;font-weight:500;color:#fff;letter-spacing:.02em}
+#black{position:absolute;inset:0;background:#03050f;pointer-events:none}
+</style>
+<canvas id="c" width="1920" height="1080"></canvas>
+<div id="vig"></div>
+<div class="hud" id="hud">
+  <div id="tl">
+    <div class="eyebrow">Eyewire II · bipolar cells</div>
+    <div id="count">0</div>
+    <div id="clabel">cells proofread</div>
+    <div id="date"></div>
+  </div>
+  <div id="board"><h3 id="bh">Proofreaders</h3><div id="rows"></div></div>
+  <div id="cap"></div>
+</div>
+<div id="wm">eyewire.ai</div>
+<div class="card" id="title"><h1><b>10,000</b> cells</h1><p>proofread by the citizen scientists of <b>Eyewire II</b></p></div>
+<div class="card" id="end">
+  <div class="mark">Eyewire II</div>
+  <h1><b>10,000</b> bipolar cells</h1>
+  <div class="names" id="names"></div>
+  <div class="url">eyewire.ai</div>
+</div>
+<div id="black"></div>
+
+<script type="importmap">{"imports":{"three":"../web/vendor/three.module.min.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+
+const FPS = 30;
+const D = await (await fetch('cells.json')).json();
+const N = D.cells.length, DAYS = D.days;
+
+// ---- palettes ---------------------------------------------------------------
+const PLAYER_HEX = ['#ffb84d','#4da3ff','#5fe3a1','#ff6b9d','#c38bff','#ff8a3d','#45e0ff','#f5f06a','#ff5c5c','#a7f55c','#ffffff'];
+// legend order for types, with a colour each; everything not listed is "other"
+const TYPE_LEGEND = [
+  ['RBC','#ff5fb0'],['t1','#3b6cff'],['t2','#4d8dff'],['t3a','#45b8ff'],['t3b','#45e0ff'],['t4','#5fe3c8'],
+  ['t5t','#9fe36a'],['t5o','#d7ea4e'],['t5i','#ffd54a'],['t6','#ffa63d'],['t7','#ff7b3d'],['t8','#ff5c5c'],
+  ['XBC','#c38bff'],['GluMI','#f2f2f2']];
+const OTHER_HEX = '#6b7390';
+const typeColour = {}; TYPE_LEGEND.forEach(([t,h]) => typeColour[t] = h);
+const hex2v = h => { const c = new THREE.Color(h); return [c.r, c.g, c.b]; };
+
+// ---- geometry ---------------------------------------------------------------
+// voxels -> scene units: xy at 16 nm, z at 40 nm, z stretched so the slab reads as a slab
+const SX = 0.016, SZ = 0.04 * 2.5;
+const pos = new Float32Array(N*3), col = new Float32Array(N*3), col2 = new Float32Array(N*3), col3 = new Float32Array(N*3), birth = new Float32Array(N), seed = new Float32Array(N);
+let mn = [1e9,1e9,1e9], mx = [-1e9,-1e9,-1e9];
+// deterministic jitter inside the day
+let s = 12345; const rnd = () => (s = (s*1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+const typeCount = {};
+const ROT = -36.73*Math.PI/180, CR = Math.cos(ROT), SR = Math.sin(ROT);
+D.cells.forEach((c, i) => {
+  const x0 = c[0]*SX, y0 = -c[1]*SX;
+  const x = x0*CR - y0*SR, y = x0*SR + y0*CR, z = -c[2]*SZ;
+  pos.set([x,y,z], i*3);
+  for (let k=0;k<3;k++){ mn[k]=Math.min(mn[k],[x,y,z][k]); mx[k]=Math.max(mx[k],[x,y,z][k]); }
+  col.set(hex2v(PLAYER_HEX[c[4]]), i*3);
+  const t = D.types[c[5]]; const th = typeColour[t] || OTHER_HEX;
+  col2.set(hex2v(th), i*3);
+  const tn = typeColour[t] ? t : 'other'; typeCount[tn] = (typeCount[tn]||0)+1;
+  birth[i] = c[3] + rnd();
+  seed[i] = rnd();
+  const hc = new THREE.Color().setHSL(rnd(), 0.92, 0.58); col3.set([hc.r,hc.g,hc.b], i*3);
+});
+// robust centre: median of positions
+const med = k => { const a = Array.from({length:N}, (_,i) => pos[i*3+k]).sort((p,q)=>p-q); return a[N>>1]; };
+const pct = (k, q) => { const a = Array.from({length:N}, (_,i) => pos[i*3+k]).sort((p,q)=>p-q); return a[Math.floor(q*(N-1))]; };
+const centre = new THREE.Vector3((pct(0,.005)+pct(0,.995))/2, (pct(1,.005)+pct(1,.995))/2, med(2));
+const extentX = pct(0,.995)-pct(0,.005), extentY = pct(1,.995)-pct(1,.005);
+
+const g = new THREE.BufferGeometry();
+g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+g.setAttribute('cA', new THREE.BufferAttribute(col, 3));
+g.setAttribute('cB', new THREE.BufferAttribute(col2, 3));
+g.setAttribute('cC', new THREE.BufferAttribute(col3, 3));
+g.setAttribute('birth', new THREE.BufferAttribute(birth, 1));
+g.setAttribute('seed', new THREE.BufferAttribute(seed, 1));
+
+const mat = new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending,
+  uniforms: { uT:{value:0}, uMix:{value:0}, uFrom:{value:2}, uTo:{value:0}, uSize:{value:1}, uPulse:{value:-1}, uPulseO:{value:new THREE.Vector3()}, uPx:{value:1080} },
+  vertexShader: `
+    attribute vec3 cA, cB, cC; attribute float birth, seed;
+    uniform float uT, uMix, uSize, uPulse, uPx; uniform int uFrom, uTo; uniform vec3 uPulseO;
+    vec3 pal(int k){ return k==0 ? cA : (k==1 ? cB : cC); }
+    varying vec3 vC; varying float vA, vFlash;
+    void main(){
+      float age = uT - birth;
+      vec4 mv = modelViewMatrix * vec4(position,1.0);
+      if (age < 0.0) { gl_Position = vec4(2.0,2.0,2.0,1.0); gl_PointSize = 0.0; vA = 0.0; return; }
+      // pop: a bright oversize flash that settles over ~0.9 day
+      float k = clamp(age/0.9, 0.0, 1.0);
+      float pop = (1.0-k)*(1.0-k);
+      vFlash = pop;
+      vec3 c = mix(pal(uFrom), pal(uTo), uMix);
+      vC = c;
+      vA = 1.0;
+      float sz = (1.0 + 0.25*seed) * (1.0 + 1.5*pop);
+      // the 10,000 ring: a wave running out from the origin cell brightens what it passes
+      if (uPulse >= 0.0) {
+        float d = distance(position, uPulseO);
+        float w = exp(-pow((d - uPulse)/26.0, 2.0));
+        sz *= 1.0 + 0.6*w; vFlash = max(vFlash, 0.75*w);
+      }
+      gl_PointSize = min(40.0, uSize * sz * (uPx*0.0115) * (420.0 / -mv.z) * 3.5);
+      gl_Position = projectionMatrix * mv;
+    }`,
+  fragmentShader: `
+    varying vec3 vC; varying float vA, vFlash;
+    void main(){
+      if (vA <= 0.0) discard;
+      vec2 p = gl_PointCoord*2.0-1.0; float d = length(p); if (d > 1.0) discard;
+      float core = smoothstep(0.42, 0.10, d);
+      float halo = exp(-d*d*3.2) * 0.42;
+      vec3 c = mix(vC, vec3(1.0), 0.55*vFlash + 0.16*core);
+      float a = (core*0.95 + halo) * (1.0 + 1.2*vFlash);
+      gl_FragColor = vec4(c*a, a);
+    }`
+});
+const pts = new THREE.Points(g, mat);
+
+// ---- renderer / camera ------------------------------------------------------
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, preserveDrawingBuffer: true });
+const DPR = window.devicePixelRatio || 1;
+renderer.setPixelRatio(DPR); renderer.setSize(1920, 1080, false);
+mat.uniforms.uPx.value = 1080*DPR;
+renderer.setClearColor(0x03050f, 1);
+const scene = new THREE.Scene(); scene.add(pts);
+const cam = new THREE.PerspectiveCamera(32, 1920/1080, 1, 20000);
+
+function placeCamera(tilt, azim, dist, shiftRight, shiftUp) {
+  // tilt: angle from straight-down (radians); azim: rotation about z
+  const dir = new THREE.Vector3(Math.sin(tilt)*Math.sin(azim), -Math.sin(tilt)*Math.cos(azim), Math.cos(tilt));
+  const tgt = centre.clone();
+  cam.position.copy(tgt).addScaledVector(dir, dist);
+  cam.up.set(0,1,0); cam.lookAt(tgt);
+  // frame the cloud left of centre so the board at the right has room
+  const right = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 0);
+  const up = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 1);
+  cam.position.addScaledVector(right, shiftRight).addScaledVector(up, shiftUp);
+  tgt.addScaledVector(right, shiftRight).addScaledVector(up, shiftUp);
+  cam.lookAt(tgt);
+}
+
+// ---- HUD ----------------------------------------------------------------------
+const $ = id => document.getElementById(id);
+const rowsEl = $('rows'), fmt = n => n.toLocaleString('en-US');
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const d0 = new Date(D.d0 + 'T00:00:00Z');
+const dateStr = day => { const d = new Date(d0.getTime() + day*864e5); return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+
+function buildRows(items) { // items: [name, hex, max]
+  rowsEl.innerHTML = items.map(([n,h]) => `<div class="row" style="color:${h}"><span class="dot"></span><span class="name">${n}</span><span class="bar"><i style="width:0"></i></span><span class="n">0</span></div>`).join('');
+}
+const players = D.players.map((p,i) => [p, PLAYER_HEX[i]]);
+const typeItems = TYPE_LEGEND.concat([['other', OTHER_HEX]]).map(([t,h]) => [t === 'other' ? 'unassigned' : t, h, t]);
+const playerCount = new Int32Array(D.players.length);
+// which cell crosses 10,000 (birth-sorted)
+const order = Array.from({length:N}, (_,i)=>i).sort((a,b)=>birth[a]-birth[b]);
+const births = order.map(i => birth[i]);
+const cell10k = order[9999], t10k = birth[cell10k];
+const pulseO = new THREE.Vector3(pos[cell10k*3], pos[cell10k*3+1], pos[cell10k*3+2]);
+function countAt(t) { let lo=0, hi=N; while (lo<hi){ const m=(lo+hi)>>1; if (births[m] <= t) lo=m+1; else hi=m; } return lo; }
+
+$('names').innerHTML = D.players.map(p => `<span>${p}</span>`).join(' ');
+
+// ---- timeline -------------------------------------------------------------------
+// seconds
+const T_TITLE_IN = 0.6, T_TITLE_OUT = 3.4, T_FILL0 = 4.2, T_FILL1 = 31.0, T_HOLD = 34.6, T_RECOL = 36.4, T_TYPES1 = 45.0, T_END0 = 46.4, T_END1 = 52.0;
+const TOTAL = T_END1 + 1.0;
+window.TOTAL_FRAMES = Math.round(TOTAL*FPS);
+const ease = x => x<0?0:x>1?1:x*x*(3-2*x);
+const lerp = (a,b,x) => a+(b-a)*x;
+const sm = (t, a, b) => ease((t-a)/(b-a));
+const clamp01 = x => Math.max(0, Math.min(1, x));
+const STILL = new URLSearchParams(location.search).get('still');   // random | players | null
+let mode = 'players';
+buildRows(players);
+if (STILL) {
+  $('title').style.display = $('end').style.display = $('black').style.display = 'none';
+  $('clabel').textContent = 'bipolar cells proofread by citizen scientists';
+  $('date').textContent = `${dateStr(0)} – ${dateStr(DAYS-1)}`;
+  $('cap').innerHTML = STILL === 'players' ? 'Each dot is one cell\'s soma, coloured by the person who proofread it.' : 'Each dot is one cell\'s soma, every cell its own colour.';
+  if (STILL !== 'players') $('board').style.display = 'none';
+  $('count').textContent = '10,000'; $('count').classList.add('gold');
+  playerCount.fill(0); D.cells.forEach(c => playerCount[c[4]]++);
+  const rows = rowsEl.children, mxp = Math.max(...playerCount);
+  for (let i=0;i<rows.length;i++){ rows[i].querySelector('i').style.width = (100*playerCount[i]/mxp)+'%'; rows[i].querySelector('.n').textContent = fmt(playerCount[i]); }
+}
+
+window.setStill = function() {
+  mat.uniforms.uT.value = DAYS + 5; mat.uniforms.uMix.value = 1; mat.uniforms.uPulse.value = -1;
+  mat.uniforms.uTo.value = STILL === 'players' ? 0 : 2;
+  const wide = STILL !== 'players';
+  const pxPerUnit = (wide ? 1360 : 1250) / extentX;
+  const dist = 1080 / (2*Math.tan(cam.fov*Math.PI/360) * pxPerUnit);
+  placeCamera(0.34, 0.12, dist, (wide ? -30 : 165)/pxPerUnit, (wide ? 70 : 0)/pxPerUnit);
+  renderer.render(scene, cam);
+};
+
+window.setFrame = function(f) {
+  if (STILL) return window.setStill();
+  const t = f / FPS;
+  // data time (days): 0 at T_FILL0, DAYS at T_FILL1, with a soft start/finish
+  let u = (t - T_FILL0) / (T_FILL1 - T_FILL0);
+  u = clamp01(u);
+  // slight ease in, but the end must land exactly on the last day
+  // after the last day the clock runs on for two more, so the last pops settle
+  const dayT = DAYS * (u < 0.08 ? 0.08*ease(u/0.08)*ease(u/0.08) : u) + 2.5*sm(t, T_FILL1, T_HOLD-0.6);
+  mat.uniforms.uT.value = dayT;
+  // recolour
+  mat.uniforms.uMix.value = sm(t, T_HOLD, T_RECOL);
+  // the 10,000 moment
+  const tCross = T_FILL0 + (t10k / DAYS) * (T_FILL1 - T_FILL0);
+  const pulse = t >= tCross ? (t - tCross) * 520 : -1;
+  mat.uniforms.uPulse.value = pulse > 1600 ? -1 : pulse; mat.uniforms.uPulseO.value.copy(pulseO);
+
+  // camera: top-down drifting to a tilt, then an orbit while the types show
+  const tilt = lerp(0.14, 0.30, sm(t, T_FILL0, T_HOLD)) + 0.22*sm(t, T_RECOL, T_TYPES1);
+  const azim = lerp(-0.10, 0.10, sm(t, T_FILL0, T_HOLD)) + 0.28*sm(t, T_RECOL, T_END0);
+  // fit: the cloud's long side takes ~1180 px of the 1920, left of the board
+  const pxPerUnit = 1250 / extentX;
+  const dist0 = 1080 / (2*Math.tan(cam.fov*Math.PI/360) * pxPerUnit);
+  const dist = dist0 * (1 + 0.06*sm(t, T_FILL0, T_HOLD)) * (1 + 0.14*sm(t, T_RECOL, T_TYPES1));
+  placeCamera(tilt, azim, dist, 165/pxPerUnit, 0);
+  mat.uniforms.uSize.value = 1.0;
+
+  // HUD values
+  const n = countAt(dayT);
+  const cnt = $('count'); cnt.textContent = fmt(n); cnt.classList.toggle('gold', n >= 10000);
+  $('date').textContent = dateStr(Math.min(DAYS-1, Math.floor(dayT)));
+  // the board only appears when the cells are recalled by who completed them;
+  // its bars grow with the recolour
+  const rows = rowsEl.children, kb = sm(t, T_HOLD, T_RECOL+0.3);
+  $('board').style.opacity = sm(t, T_HOLD, T_HOLD+0.9);
+  playerCount.fill(0); D.cells.forEach(c => playerCount[c[4]]++);
+  const mxp = Math.max(...playerCount);
+  for (let i=0;i<rows.length;i++){ const v = Math.round(playerCount[i]*kb); rows[i].querySelector('i').style.width = (100*v/mxp)+'%'; rows[i].querySelector('.n').textContent = fmt(v); }
+  // captions
+  let cap = '';
+  if (t < T_HOLD) cap = `Each dot is one bipolar cell soma, lit on the day its proofreading was finished.`;
+  else if (t < T_END0) cap = `<b>154 days</b> · <b>11 proofreaders</b> · <b>${fmt(N)} cells</b>, now coloured by the person who completed each one.`;
+  if (t >= tCross && t < T_HOLD) cap = `<b>10,000</b> on ${dateStr(Math.floor(t10k))}.`;
+  $('cap').innerHTML = cap;
+
+  // overlays
+  $('hud').style.opacity = sm(t, T_TITLE_OUT, T_FILL0) * (1 - sm(t, T_END0-0.8, T_END0));
+  $('title').style.opacity = sm(t, T_TITLE_IN, T_TITLE_IN+1.0) * (1 - sm(t, T_TITLE_OUT-0.8, T_TITLE_OUT));
+  $('end').style.opacity = sm(t, T_END0, T_END0+1.0);
+  $('black').style.opacity = (1 - sm(t, 0, 0.8)) + sm(t, T_END1, T_END1+1.0);
+  // the whole cloud dims under the end card
+  renderer.toneMappingExposure = 1;
+  pts.material.opacity = 1;
+  $('c').style.opacity = 1 - 0.7*sm(t, T_END0, T_END0+1.0);
+
+  renderer.render(scene, cam);
+};
+await document.fonts.ready;
+window.setFrame(0);
+window.READY = true;
+// live preview when opened in a browser
+if (!navigator.webdriver) { let f0 = performance.now(); const loop = () => { const f = Math.floor((performance.now()-f0)/1000*FPS) % window.TOTAL_FRAMES; window.setFrame(f); requestAnimationFrame(loop); }; loop(); }
+</script>

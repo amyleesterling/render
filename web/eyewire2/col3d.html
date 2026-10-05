@@ -1,0 +1,199 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>A column of bipolar cells</title>
+<style>
+@font-face{font-family:Inter;font-weight:100 900;src:url(fonts/inter-latin.woff2) format("woff2")}
+html,body{margin:0;background:#03050f;overflow:hidden}
+body{width:1920px;height:1080px;position:relative;font-family:Inter,system-ui,sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+canvas{position:absolute;inset:0;display:block;width:1920px;height:1080px}
+#vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 45% 50%, rgba(3,5,15,0) 50%, rgba(3,5,15,.6) 100%)}
+.hud{position:absolute;inset:0;pointer-events:none}
+#tl{position:absolute;left:84px;top:72px}
+.eyebrow{font-size:17px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:500}
+#count{font-size:148px;font-weight:300;letter-spacing:-.035em;line-height:1;margin:18px 0 6px;font-variant-numeric:tabular-nums;text-shadow:0 0 40px rgba(120,160,255,.25)}
+#clabel{font-size:26px;color:rgba(255,255,255,.78)}
+#sub{font-size:22px;color:rgba(255,255,255,.5);margin-top:26px;max-width:520px;line-height:1.45}
+#board{position:absolute;right:84px;top:92px;width:400px;opacity:0}
+#board h3{margin:0 0 20px;font-size:17px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:500}
+.row{display:flex;align-items:center;height:38px;font-size:19px;font-variant-numeric:tabular-nums}
+.row .dot{width:12px;height:12px;border-radius:50%;margin-right:14px;flex:none;box-shadow:0 0 10px currentColor}
+.row .name{width:168px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:rgba(255,255,255,.88);font-weight:500}
+.row .bar{flex:1;height:5px;background:rgba(255,255,255,.08);border-radius:3px;margin:0 14px;overflow:hidden}
+.row .bar i{display:block;height:100%;background:currentColor;border-radius:3px;box-shadow:0 0 12px currentColor}
+.row .n{width:56px;text-align:right;color:rgba(255,255,255,.7)}
+#cap{position:absolute;left:84px;bottom:76px;font-size:24px;color:rgba(255,255,255,.72);max-width:900px;line-height:1.4}
+#cap b{color:#fff;font-weight:600}
+#wm{position:absolute;right:38px;bottom:28px;font-size:24px;font-weight:500;color:rgba(255,255,255,.5)}
+.card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+#title h1{font-size:150px;font-weight:200;letter-spacing:-.04em;margin:0;line-height:1;text-shadow:0 0 80px rgba(120,160,255,.35)}
+#title h1 b{font-weight:600;color:#ffd56a;text-shadow:0 0 80px rgba(255,200,90,.45)}
+#title p{font-size:34px;font-weight:300;color:rgba(255,255,255,.8);margin:34px 0 0}
+#title p b{font-weight:500;color:#fff}
+#end .mark{font-size:26px;letter-spacing:.42em;text-transform:uppercase;font-weight:500;color:rgba(255,255,255,.6)}
+#end h1{font-size:104px;font-weight:200;letter-spacing:-.03em;margin:22px 0 0;line-height:1.05}
+#end h1 b{font-weight:600;color:#ffd56a}
+#end .names{margin-top:44px;font-size:26px;color:rgba(255,255,255,.85);max-width:1200px;line-height:1.7}
+#end .names span{white-space:nowrap}
+#end .names span+span::before{content:"·";color:rgba(255,255,255,.3);margin:0 .6em}
+#end .url{margin-top:48px;font-size:30px;font-weight:500}
+#black{position:absolute;inset:0;background:#03050f;pointer-events:none}
+#load{position:absolute;left:84px;bottom:140px;font-size:18px;color:rgba(255,255,255,.4)}
+</style>
+<canvas id="c" width="1920" height="1080"></canvas>
+<div id="vig"></div>
+<div class="hud" id="hud">
+  <div id="tl">
+    <div class="eyebrow">Eyewire II · bipolar cells</div>
+    <div id="count">0</div>
+    <div id="clabel">cells in this column</div>
+    <div id="sub"></div>
+  </div>
+  <div id="board"><h3 id="bh">Proofreaders</h3><div id="rows"></div></div>
+  <div id="cap"></div>
+</div>
+<div id="wm">eyewire.ai</div>
+<div class="card" id="title"><h1><b>10,000</b> cells, up close</h1><p>one column of the retina, every branch of every cell</p></div>
+<div class="card" id="end">
+  <div class="mark">Eyewire II</div>
+  <h1><b>10,000</b> bipolar cells</h1>
+  <div class="names" id="names"></div>
+  <div class="url">eyewire.ai</div>
+</div>
+<div id="black"></div>
+<div id="load"></div>
+
+<script type="importmap">{"imports":{"three":"../web/vendor/three.module.min.js","three/addons/":"../web/vendor/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from '../web/vendor/loaders/GLTFLoader.js';
+
+const FPS = 30, $ = id => document.getElementById(id), fmt = n => n.toLocaleString('en-US');
+const MESHES = new URLSearchParams(location.search).get('meshes') || 'meshes';
+const IDX = await (await fetch(`${MESHES}/index.json`)).json();
+const cells = IDX.cells.slice().sort((a,b) => a.date.localeCompare(b.date));
+const N = cells.length;
+
+// ---- palettes, shared with index.html -------------------------------------------
+const PLAYERS = ['Nseraf','KrzysztofKruk','Annkri','Andrearwen','G Trakimas','st0ck53y','AzureJay','August','Amy R. Sterling','a5hm0r','Celia D'];
+const PLAYER_HEX = ['#ffb84d','#4da3ff','#5fe3a1','#ff6b9d','#c38bff','#ff8a3d','#45e0ff','#f5f06a','#ff5c5c','#a7f55c','#ffffff'];
+const TYPE_LEGEND = [['RBC','#ff5fb0'],['t1','#3b6cff'],['t2','#4d8dff'],['t3a','#45b8ff'],['t3b','#45e0ff'],['t4','#5fe3c8'],
+  ['t5t','#9fe36a'],['t5o','#d7ea4e'],['t5i','#ffd54a'],['t6','#ffa63d'],['t7','#ff7b3d'],['t8','#ff5c5c'],['XBC','#c38bff'],['GluMI','#f2f2f2']];
+const OTHER_HEX = '#6b7390';
+const typeHex = Object.fromEntries(TYPE_LEGEND);
+let s = 4242; const rnd = () => (s = (s*1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+cells.forEach(c => {
+  c.cRandom = new THREE.Color().setHSL(rnd(), 0.85, 0.6);
+  c.cType = new THREE.Color(typeHex[c.type] || OTHER_HEX);
+  c.cPlayer = new THREE.Color(PLAYER_HEX[Math.max(0, PLAYERS.indexOf(c.proofreader))]);
+  c.typeKey = typeHex[c.type] ? c.type : 'other';
+});
+
+// ---- scene -----------------------------------------------------------------------
+const renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: true, preserveDrawingBuffer: true });
+const DPR = window.devicePixelRatio || 1; renderer.setPixelRatio(DPR); renderer.setSize(1920, 1080, false);
+renderer.setClearColor(0x03050f, 1); renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.15;
+const scene = new THREE.Scene();
+scene.add(new THREE.HemisphereLight(0xdfe8ff, 0x0a1030, 1.1));
+const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(1, -1.2, 1.6); scene.add(key);
+const rim = new THREE.DirectionalLight(0x8fb5ff, 0.9); rim.position.set(-1.2, 1, -0.4); scene.add(rim);
+const cam = new THREE.PerspectiveCamera(30, 1920/1080, 1, 5000);
+
+// the column centre, in µm; z up (the outer retina, somas, is at high z)
+const centre = new THREE.Vector3();
+cells.forEach(c => centre.add(new THREE.Vector3(...c.soma_um))); centre.multiplyScalar(1/N);
+let zLo = Infinity, zHi = -Infinity;
+
+const loader = new GLTFLoader();
+let loaded = 0;
+await Promise.all(cells.map(c => new Promise(res => loader.load(`${MESHES}/${c.segid}.glb`, g => {
+  const mesh = g.scene.getObjectByProperty('isMesh', true);
+  if (!mesh) return res();
+  const geo = mesh.geometry;
+  if (!geo.attributes.normal) geo.computeVertexNormals();
+  geo.computeBoundingBox(); zLo = Math.min(zLo, geo.boundingBox.min.z); zHi = Math.max(zHi, geo.boundingBox.max.z);
+  c.mat = new THREE.MeshStandardMaterial({ color: c.cRandom.clone(), roughness: 0.55, metalness: 0.0, transparent: true, opacity: 0,
+    emissive: new THREE.Color(0xffffff), emissiveIntensity: 0 });
+  c.mesh = new THREE.Mesh(geo, c.mat); c.mesh.visible = false; scene.add(c.mesh);
+  $('load').textContent = `${++loaded}/${N}`; res();
+}, undefined, () => res()))));
+$('load').textContent = '';
+const live = cells.filter(c => c.mesh);
+console.log('loaded', live.length, 'of', N, 'z range', zLo, zHi);
+const zMid = (zLo + zHi) / 2;
+const target0 = new THREE.Vector3(centre.x, centre.y, zMid);
+// how wide the column is, so the camera distance scales with the subset
+const spread = Math.max(...live.map(c => Math.hypot(c.soma_um[0]-centre.x, c.soma_um[1]-centre.y))) + 12;
+const DK = spread / 50;   // the 170-cell column, spread ~50 µm, framed well at the distances below
+
+// ---- HUD --------------------------------------------------------------------------
+const rowsEl = $('rows');
+function buildRows(items) { rowsEl.innerHTML = items.map(([n,h]) => `<div class="row" style="color:${h}"><span class="dot"></span><span class="name">${n}</span><span class="bar"><i style="width:0"></i></span><span class="n">0</span></div>`).join(''); }
+const playerCount = {}, typeCount = {};
+live.forEach(c => { playerCount[c.proofreader] = (playerCount[c.proofreader]||0)+1; typeCount[c.typeKey] = (typeCount[c.typeKey]||0)+1; });
+const playerItems = PLAYERS.map((p,i) => [p, PLAYER_HEX[i], p]).filter(([p]) => playerCount[p]);
+const typeItems = TYPE_LEGEND.concat([['other', OTHER_HEX]]).map(([t,h]) => [t === 'other' ? 'unassigned' : t, h, t]).filter(([,,k]) => typeCount[k]);
+$('names').innerHTML = PLAYERS.filter(p => playerCount[p]).map(p => `<span>${p}</span>`).join(' ');
+$('sub').textContent = `${fmt(N)} of the 10,081 proofread cells, every one whose cell body lies within 38 µm of a point in the imaging box.`;
+
+// ---- timeline (seconds) ------------------------------------------------------------
+const T = { titleIn: 0.6, titleOut: 3.4, fill0: 4.0, fill1: 22.0, typeIn: 24.0, typeDone: 26.0, playerIn: 33.0, playerDone: 35.0, end0: 42.0, end1: 47.0 };
+window.TOTAL_FRAMES = Math.round((T.end1 + 1.0) * FPS);
+const ease = x => x<0?0:x>1?1:x*x*(3-2*x), sm = (t,a,b) => ease((t-a)/(b-a)), lerp = (a,b,x) => a+(b-a)*x;
+let board = '';
+const tmp = new THREE.Color();
+
+window.setFrame = function(f) {
+  const t = f / FPS;
+  // arrivals, in completion order, eased so the first and last cells are not rushed
+  const u = sm(t, T.fill0, T.fill1);
+  const arrived = u * live.length;
+  let n = 0;
+  const kType = sm(t, T.typeIn, T.typeDone), kPlayer = sm(t, T.playerIn, T.playerDone);
+  live.forEach((c, i) => {
+    const age = arrived - i;                      // in cells; ~8 cells per second
+    if (age <= 0) { c.mesh.visible = false; return; }
+    n++;
+    c.mesh.visible = true;
+    const k = Math.min(1, age / 6);               // fade over ~0.75 s
+    c.mat.opacity = k; c.mat.transparent = k < 1; c.mat.depthWrite = k > 0.4;
+    c.mat.emissiveIntensity = 0.9 * (1-k)*(1-k);
+    tmp.copy(c.cRandom).lerp(c.cType, kType).lerp(c.cPlayer, kPlayer);
+    c.mat.color.copy(tmp);
+  });
+  // camera: a slow orbit, from above during the fill, swinging to the side as the types appear
+  const elev = lerp(1.22, 0.66, sm(t, T.fill0, T.fill1)) - 0.54*sm(t, T.typeIn - 0.5, T.typeDone + 2.5);
+  const az = -0.6 + 0.04 * t;
+  const dist = DK * (lerp(262, 236, sm(t, T.fill0, T.fill1)) + 30*sm(t, T.typeIn, T.typeDone + 2));
+  cam.position.set(target0.x + dist*Math.cos(elev)*Math.cos(az), target0.y + dist*Math.cos(elev)*Math.sin(az), target0.z + dist*Math.sin(elev));
+  cam.up.set(0,0,1); cam.lookAt(target0);
+  // frame the column left of centre so the board has room
+  cam.setViewOffset(1920, 1080, 160, -64, 1920, 1080);
+
+  // HUD
+  $('count').textContent = fmt(n);
+  if (t < T.typeIn) { if (board !== '') { board = ''; } $('board').style.opacity = 0; }
+  else if (t < T.playerIn - 0.6) { if (board !== 'types') { board = 'types'; buildRows(typeItems); $('bh').textContent = 'Bipolar cell types'; }
+    const kb = sm(t, T.typeIn, T.typeDone + 0.4), mx = Math.max(...Object.values(typeCount));
+    $('board').style.opacity = sm(t, T.typeIn, T.typeIn + 0.8);
+    [...rowsEl.children].forEach((r,i) => { const v = Math.round(typeCount[typeItems[i][2]]*kb); r.querySelector('i').style.width = (100*v/mx)+'%'; r.querySelector('.n').textContent = v; }); }
+  else { if (board !== 'players') { board = 'players'; buildRows(playerItems); $('bh').textContent = 'Proofreaders'; }
+    const kb = sm(t, T.playerIn, T.playerDone + 0.4), mx = Math.max(...Object.values(playerCount));
+    $('board').style.opacity = sm(t, T.playerIn - 0.6, T.playerIn + 0.4);
+    [...rowsEl.children].forEach((r,i) => { const v = Math.round(playerCount[playerItems[i][2]]*kb); r.querySelector('i').style.width = (100*v/mx)+'%'; r.querySelector('.n').textContent = v; }); }
+  let cap = `Real cells from the segmentation, arriving in the order they were finished.`;
+  if (t >= T.typeIn) cap = `Coloured by <b>type</b>. Seen from the side, each type's axon ends at its own depth in the inner plexiform layer.`;
+  if (t >= T.playerIn - 0.6) cap = `Recalled by the <b>person who proofread</b> each one.`;
+  $('cap').innerHTML = cap;
+
+  $('hud').style.opacity = sm(t, T.titleOut, T.fill0) * (1 - sm(t, T.end0-0.8, T.end0));
+  $('title').style.opacity = sm(t, T.titleIn, T.titleIn+1.0) * (1 - sm(t, T.titleOut-0.8, T.titleOut));
+  $('end').style.opacity = sm(t, T.end0, T.end0+1.0);
+  $('black').style.opacity = (1 - sm(t, 0, 0.8)) + sm(t, T.end1, T.end1+1.0);
+  $('c').style.opacity = 1 - 0.7*sm(t, T.end0, T.end0+1.0);
+  renderer.render(scene, cam);
+};
+await document.fonts.ready;
+window.setFrame(0);
+window.READY = true;
+if (!navigator.webdriver) { const f0 = performance.now(); const loop = () => { window.setFrame(Math.floor((performance.now()-f0)/1000*FPS) % window.TOTAL_FRAMES); requestAnimationFrame(loop); }; loop(); }
+</script>
