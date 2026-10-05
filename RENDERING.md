@@ -845,10 +845,11 @@ Things that could not be determined from `D:\Meshes` and the three repos on
    listed in [INVENTORY.md](INVENTORY.md). `download_gradient.py`,
    `render_gradient.py` and `gradient_sweep.py` read that CSV, so those three
    cannot run from this repo alone.
-8. **`col3d.html` is not on `main` of the ca3 repo.** It was copied from the
-   branch `claude/volume-page-content-review-robkz4`, committed the same day.
-   Its three.js vendor files, font and `manifest.csv` stay in the ca3 repo. If
-   that branch changes, this snapshot is stale.
+8. **`col3d.html` here is a snapshot of a branch.** It was copied on 4 October
+   from `claude/volume-page-content-review-robkz4`. It reached `main` of the ca3
+   repo the next day along with the film it made. The copy here was not
+   refreshed, so treat the ca3 repo as current. Its three.js vendor files, font
+   and `manifest.csv` stay there.
 9. **`cap.js` targets a page called `anim.html`** by default, which exists in
    neither place. It works with `ANIM_URL` set. Whether `anim.html` was a
    working name for `col3d.html` is unknown.

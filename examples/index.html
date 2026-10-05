@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Render examples</title>
+<meta name="description" content="Example neuron renders made with the pipeline in this repository, each with the scripts and settings that produced it.">
+<!--
+  No media lives in this repo. Every video and poster below is served from the
+  project site where it was published (ca3, microns, retina, banc). If one of
+  those files moves, fix the URL here.
+-->
+<style>
+:root{
+  --bg:#000; --panel:#0b0d12; --line:#1e232d; --text:#e9edf3; --dim:#9aa4b2;
+  --gold:#E2AF5E; --blue:#2586F5;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+header,main,footer{max-width:1180px;margin:0 auto;padding:0 16px}
+header{padding-top:56px;padding-bottom:8px}
+h1{font-size:clamp(30px,5vw,46px);font-weight:600;letter-spacing:-.02em;line-height:1.1;margin:0 0 14px}
+.lede{max-width:720px;color:var(--dim);font-size:18px;margin:0 0 10px}
+.lede b{color:var(--text);font-weight:600}
+nav{display:flex;flex-wrap:wrap;gap:8px 18px;margin:22px 0 0;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:14px}
+h2{font-size:24px;font-weight:600;letter-spacing:-.01em;margin:56px 0 4px}
+.sub{color:var(--dim);margin:0 0 20px;max-width:720px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex;flex-direction:column}
+figure.wide{grid-column:1 / -1}
+.media{background:#000;aspect-ratio:16/9}
+.media video,.media img{display:block;width:100%;height:100%;object-fit:contain;background:#000}
+figcaption{padding:16px 18px 18px}
+h3{font-size:18px;font-weight:600;margin:0 0 6px}
+figcaption p{margin:0 0 10px;color:#cfd6e0}
+.made{margin:12px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:14px;color:var(--dim)}
+.made .k{display:block;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.made code{font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--text)}
+.limit{font-size:14px;color:var(--dim)}
+.limit b{color:var(--text);font-weight:600}
+footer{padding-top:48px;padding-bottom:64px;color:var(--dim);font-size:14px}
+footer p{max-width:720px}
+@media (max-width:820px){
+  .grid{grid-template-columns:1fr}
+  header{padding-top:36px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Render examples</h1>
+  <p class="lede">Neuron renders made with the pipeline in this repository. Each one lists the scripts that produced it, so you can go from a picture you like to the code behind it.</p>
+  <p class="lede">The stages are in <a href="https://github.com/amyleesterling/render/blob/main/RENDERING.md"><b>RENDERING.md</b></a>. Every script is in <a href="https://github.com/amyleesterling/render/blob/main/INVENTORY.md"><b>INVENTORY.md</b></a>.</p>
+  <nav aria-label="Projects">
+    <a href="#ca3">CA3, mouse hippocampus</a>
+    <a href="#microns">MICrONS, mouse cortex</a>
+    <a href="#retina">Eyewire II, mouse retina</a>
+    <a href="#banc">BANC, fly brain and nerve cord</a>
+    <a href="#web">No GPU</a>
+  </nav>
+</header>
+
+<main>
+
+<section id="ca3">
+  <h2>CA3, mouse hippocampus</h2>
+  <p class="sub">Blender 4.4, EEVEE, 64 samples. The population is imported once into a scene cache, and every shot opens the cache and rebuilds only materials, lights, camera and keyframes. More on <a href="https://amyleesterling.github.io/ca3/">the CA3 site</a>.</p>
+  <div class="grid">
+
+    <figure>
+      <div class="media"><video controls playsinline muted loop preload="metadata" poster="https://amyleesterling.github.io/ca3/images/23_build_wide.jpg"><source src="https://amyleesterling.github.io/ca3/video/build_sequence_wide.mp4" type="video/mp4"></video></div>
+      <figcaption>
+        <h3>A population arriving in circuit order</h3>
+        <p>Twenty seconds. Mossy fibers first, then the cells they drive. Cells fade in, they never scale up from a point.</p>
+        <div class="made"><span class="k">How it was made</span>
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/ca3/build_cache.py"><code>build_cache.py</code></a> once, then
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/ca3/render_from_cache.py"><code>render_from_cache.py</code></a>.
+          Camera distance and vertical shift were solved from measured stills, not guessed.</div>
+      </figcaption>
+    </figure>
+
+    <figure>
+      <div class="media"><video controls playsinline muted loop preload="metadata" poster="https://amyleesterling.github.io/ca3/images/27_ladder.jpg"><source src="https://amyleesterling.github.io/ca3/video/scale_ladder.mp4" type="video/mp4"></video></div>
+      <figcaption>
+        <h3>The scale ladder</h3>
+        <p>Twenty seven seconds from the whole tissue block to a single synapse, holding on each rung.</p>
+        <div class="made"><span class="k">How it was made</span>
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/ca3/scale_ladder.py"><code>scale_ladder.py</code></a>.
+          The framing radius is interpolated in log space, clip planes follow the distance, and light energy follows its square. Without those three the last rung arrives black.</div>
+      </figcaption>
+    </figure>
+
+    <figure>
+      <div class="media"><video controls playsinline muted loop preload="metadata" poster="https://amyleesterling.github.io/ca3/images/20_ap_six_poster.jpg"><source src="https://amyleesterling.github.io/ca3/video/ap_six.mp4" type="video/mp4"></video></div>
+      <figcaption>
+        <h3>A signal travelling real cable</h3>
+        <p>Eighteen seconds. Six mossy fibers onto one pyramidal cell. One fires alone and fails, then all six fire and the cell answers.</p>
+        <p class="limit"><b>Limit.</b> Detached pieces of the arbor have no honest arrival time, so they stay dark.</p>
+        <div class="made"><span class="k">How it was made</span>
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/ca3/ap_fields6.py"><code>ap_fields6.py</code></a> measures path distance along each skeleton, then
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/ca3/ap_six.py"><code>ap_six.py</code></a> animates an emission band across it.
+          The featured cell is at native resolution so its thorns resolve.</div>
+      </figcaption>
+    </figure>
+
+    <figure>
+      <div class="media"><video controls playsinline muted loop preload="metadata" poster="https://amyleesterling.github.io/ca3/images/29_inhibition.jpg"><source src="https://amyleesterling.github.io/ca3/video/inhibition.mp4" type="video/mp4"></video></div>
+      <figcaption>
+        <h3>Feedforward inhibition, in seven beats</h3>
+        <p>Eighteen seconds. Mossy fibers converge on one interneuron, in emerald, and its axon carries the signal on to its targets.</p>
+        <div class="made"><span class="k">How it was made</span>
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/ca3/inhib_fields.py"><code>inhib_fields.py</code></a>, then
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/ca3/hero_full.py"><code>hero_full.py</code></a> with <code>scope=inhibition</code>, which drives
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/ca3/inhibition_shot.py"><code>inhibition_shot.py</code></a>.
+          Each beat was checked as a still with <code>beats=</code> before the full render was queued.</div>
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<section id="microns">
+  <h2>MICrONS, mouse visual cortex</h2>
+  <p class="sub">One Blender unit per micrometre. Squeezing this volume into ten units made half micrometre dendrites too thin for the renderer to draw. More on <a href="https://amyleesterling.github.io/microns/">the MICrONS site</a>.</p>
+  <div class="grid">
+    <figure class="wide">
+      <div class="media"><video controls playsinline muted loop preload="metadata" poster="https://amyleesterling.github.io/microns/images/cortex_by_type.jpg"><source src="https://amyleesterling.github.io/microns/video/cortex_by_type.mp4" type="video/mp4"></video></div>
+      <figcaption>
+        <h3>Thirty eight proofread cells, coloured by predicted cell type</h3>
+        <p>Colour is identity, not position. The layers appear because that is where each type lives. The legend is composited afterwards from the same table the render coloured from, so it cannot drift from the picture.</p>
+        <p class="limit"><b>Limit.</b> 38 cells is a sample. It shows where types sit, not how densely cortex is packed.</p>
+        <div class="made"><span class="k">How it was made</span>
+          <a href="https://github.com/amyleesterling/render/blob/main/decimate/microns/decimate_microns_area.py"><code>decimate_microns_area.py</code></a> at 100 faces per square micrometre, about 81 million faces in all, then
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/microns/microns_column.py"><code>microns_column.py</code></a> and
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/microns/microns_overlay.py"><code>microns_overlay.py</code></a>.</div>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="retina">
+  <h2>Eyewire II, mouse retina</h2>
+  <p class="sub">Here brightness is a measurement, so emission carries it. The scene is still lit. More on <a href="https://amyleesterling.github.io/retina/">the retina site</a>.</p>
+  <div class="grid">
+
+    <figure>
+      <div class="media"><video controls playsinline muted loop preload="metadata" poster="https://amyleesterling.github.io/retina/media/ds_mosaic.jpg"><source src="https://amyleesterling.github.io/retina/media/ds_mosaic.mp4" type="video/mp4"></video></div>
+      <figcaption>
+        <h3>Direction selectivity, measured</h3>
+        <p>202 calcium imaged cells. Hue is the direction a cell prefers and brightness is its own recorded response. The 64 direction selective cells light once per sweep. The 138 that are not significantly tuned stay dim on purpose.</p>
+        <div class="made"><span class="k">How it was made</span>
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/retina/retina_ds_anim.py"><code>retina_ds_anim.py</code></a> writes a frame sequence, then
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/retina/retina_overlay.py"><code>retina_overlay.py</code></a> adds the key, the compass and the live count from the same table the render read.</div>
+      </figcaption>
+    </figure>
+
+    <figure>
+      <div class="media"><video controls playsinline muted loop preload="metadata" poster="https://amyleesterling.github.io/retina/media/sac_mosaic.jpg"><source src="https://amyleesterling.github.io/retina/media/sac_mosaic.mp4" type="video/mp4"></video></div>
+      <figcaption>
+        <h3>Starburst amacrine cells, then on their side</h3>
+        <p>24 cells laid in one at a time, each in its own colour. Then the view turns and every arbor collapses into one thin band.</p>
+        <p class="limit"><b>Limit.</b> The 24 are a sample, not the population. The film supports the claim about depth. It does not show how much neighbouring cells overlap.</p>
+        <div class="made"><span class="k">How it was made</span>
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/retina/retina_strat_anim.py"><code>retina_strat_anim.py</code></a> with <code>mode=sac</code>.</div>
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<section id="banc">
+  <h2>BANC, fly brain and nerve cord</h2>
+  <p class="sub">A still. The animation of this scene is on the review shelf and has not been published. More on <a href="https://amyleesterling.github.io/banc/">the BANC site</a>.</p>
+  <div class="grid">
+    <figure class="wide">
+      <div class="media"><img loading="lazy" src="https://amyleesterling.github.io/banc/images/dn_bodyparts.jpg" alt="A single descending neuron in white, threading down from the brain into 131 motor neurons coloured by the body part each one serves"></div>
+      <figcaption>
+        <h3>One descending neuron, many body parts</h3>
+        <p>A single descending neuron in white, running from the brain down the neck connective into 131 motor neurons, each coloured by the body part it serves.</p>
+        <div class="made"><span class="k">How it was made</span>
+          The cast is chosen from connectivity by
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/banc/banc_bodyparts.py"><code>banc_bodyparts.py</code></a>, downloaded with
+          <a href="https://github.com/amyleesterling/render/blob/main/download/banc/banc_download.py"><code>banc_download.py</code></a>, and the scene is
+          <a href="https://github.com/amyleesterling/render/blob/main/blender/banc/banc_shotB_anim.py"><code>banc_shotB_anim.py</code></a>.</div>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="web">
+  <h2>No Blender, no GPU</h2>
+  <p class="sub">Meshes through CAVE, drawn in three.js, captured frame by frame from headless Chromium into ffmpeg. This runs in a cloud session with no graphics card.</p>
+  <div class="grid">
+    <figure class="wide">
+      <div class="media"><video controls playsinline muted loop preload="metadata"><source src="https://amyleesterling.github.io/ca3/eyewire2/10k_column.mp4" type="video/mp4"></video></div>
+      <figcaption>
+        <h3>A column of proofread bipolar cells</h3>
+        <p>Cells proofread by Eyewire II citizen scientists, as meshes, 1920 by 1080 at 30 frames a second. The same page plays live at <a href="https://amyleesterling.github.io/ca3/eyewire2/col3d.html">ca3/eyewire2/col3d.html</a>.</p>
+        <p class="limit"><b>Limit.</b> This path has no subsurface shading or depth of field. It trades the Blender look for reach.</p>
+        <div class="made"><span class="k">How it was made</span>
+          <a href="https://github.com/amyleesterling/render/blob/main/web/eyewire2/fetch_meshes.py"><code>fetch_meshes.py</code></a> writes one GLB per cell in micrometres,
+          <a href="https://github.com/amyleesterling/render/blob/main/web/eyewire2/col3d.html"><code>col3d.html</code></a> draws them, and
+          <a href="https://github.com/amyleesterling/render/blob/main/web/eyewire2/cap.js"><code>cap.js</code></a> captures the film. See
+          <a href="https://github.com/amyleesterling/render/blob/main/web/README.md">web/README.md</a>.</div>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p>Renders by Amy Sterling. The guide and this page are CC BY 4.0 and the code is MIT. If you use them, credit Amy Sterling and link <a href="https://github.com/amyleesterling/render">github.com/amyleesterling/render</a>.</p>
+  <p>The reconstructions belong to the groups that made them. If you publish a render, cite the dataset as well.</p>
+</footer>
+
+</body>
+</html>

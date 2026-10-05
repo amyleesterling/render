@@ -18,7 +18,7 @@ The files in `eyewire2/` here are a snapshot taken 4 October 2026.
 | file | from | what |
 |---|---|---|
 | `eyewire2/fetch_meshes.py` | ca3 `main` | pulls meshes through CAVE, decimates, writes `<segid>.glb` and `index.json` |
-| `eyewire2/col3d.html` | ca3 branch `claude/volume-page-content-review-robkz4` | the 3D column of cells in three.js. **Not on `main` yet when this was copied** |
+| `eyewire2/col3d.html` | ca3 branch `claude/volume-page-content-review-robkz4` | the 3D column of cells in three.js. On `main` of ca3 since 5 October; this copy is the branch version from the day before |
 | `eyewire2/index.html` | ca3 `main` | the earlier film, one dot per soma, from `cells.json` |
 | `eyewire2/cap.js` | ca3 `main` | frame capture: Playwright screenshots piped into ffmpeg |
 | `eyewire2/upstream/README.md` | ca3 `main` | the original README for the dot film |

@@ -11,6 +11,9 @@ downloaded, downsampled, rendered, queued, reviewed and published.
 **Start with [RENDERING.md](RENDERING.md).** It is one section per stage and
 assumes you have never seen the machine.
 
+**See what it makes:** [render examples](https://amyleesterling.github.io/render/examples/),
+each with the scripts that produced it.
+
 ## What is here
 
 | path | what |
@@ -24,6 +27,7 @@ assumes you have never seen the machine.
 | `blender/<project>/` | the Blender scripts, their post passes and small input files |
 | `queue/` | how the overnight render queue works. The queue itself is [render-queue](https://github.com/amyleesterling/render-queue) |
 | `review/` | the approval shelf. The shelf itself is [review](https://github.com/amyleesterling/review) |
+| `examples/` | the page of demo renders. It links media on the project sites and holds none itself |
 | `web/eyewire2/` | the path with no Blender and no GPU: CAVE to GLB to three.js to ffmpeg |
 | `notes/` | the playbook and the handoff documents, moved here as written |
 | `requirements-aurelius.txt` | `pip freeze` of the production Python environment |
