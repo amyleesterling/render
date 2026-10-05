@@ -42,6 +42,18 @@ Most of them carry absolute paths such as `D:\Meshes\ca3_animation.py` and
 stage, so **they run as is on Aurelius from `D:\Meshes`, and need their paths
 changed anywhere else.** RENDERING.md section 1 says how.
 
+## Licence and credit
+
+Free to use, with credit.
+
+- **Code**: MIT, in [LICENSE](LICENSE). Keep the copyright notice with any copy.
+- **The guide and the notes**: CC BY 4.0, in [LICENSE-docs.md](LICENSE-docs.md).
+  Name Amy Sterling, link here, and say what you changed.
+- **To cite it**: use "Cite this repository" on GitHub, which reads
+  [CITATION.cff](CITATION.cff).
+
+The datasets the scripts read have their own terms. Cite the dataset too.
+
 ## The three rules that cost the most to learn
 
 1. If you built an animation, add it to the queue and stop. Do not render it.

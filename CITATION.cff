@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this guide or this code, please cite it as below."
+type: software
+title: "Rendering neurons: a guide to rendering connectomic reconstructions with AI"
+abstract: >-
+  The procedure and the code behind neuron renders of mouse hippocampus (CA3),
+  the fly brain and nerve cord (BANC), mouse visual cortex (MICrONS) and mouse
+  retina (Eyewire II): download, decimation, Blender import, material and
+  lighting conventions, animation, a shared overnight render queue, review and
+  publishing, plus a path that needs no GPU.
+authors:
+  - family-names: Sterling
+    given-names: Amy
+repository-code: "https://github.com/amyleesterling/render"
+url: "https://github.com/amyleesterling/render"
+license: MIT
+date-released: "2026-10-04"
+keywords:
+  - connectomics
+  - neuron rendering
+  - Blender
+  - scientific visualisation
+  - CAVE
