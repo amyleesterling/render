@@ -18,7 +18,7 @@ Contents:
 [6 Animate](#6-animate) ·
 [7 Beat check](#7-the-beat-check) ·
 [8 Queue](#8-queue) ·
-[9 Encode](#9-encode) ·
+[9 Words in post, encode](#9-words-in-post-then-encode) ·
 [10 Review](#10-review) ·
 [11 Publish](#11-publish) ·
 [12 No GPU](#12-the-path-with-no-gpu) ·
@@ -576,9 +576,10 @@ each script's header and in [INVENTORY.md](INVENTORY.md).
   encodes at the end.
 - **Blender exits 0 even when the script raises.** Print a sentinel at the end
   (`[R] DONE`) and check the log for it. Never trust the exit code.
-- **Labels are composited afterwards in Pillow**, never drawn in Blender. A text
-  object that changes per frame needs a `frame_change` handler, "and handlers
-  during a headless animation render are a known way to lose a whole run".
+- **Words go on in post**, never drawn in Blender. Section 9 has the rule. One
+  more reason: a text object that changes per frame needs a `frame_change`
+  handler, "and handlers during a headless animation render are a known way to
+  lose a whole run".
 - Read the overlay's numbers from the same CSV the render read, so the caption
   cannot drift from the picture.
 - Never put a Windows path inside a bash heredoc. `\r` and `\b` are eaten. Use
@@ -623,6 +624,9 @@ Then **open the PNGs and look at them**. For each one, check:
 the image was completely wrong." And to prove an animation moves, compare two
 frames. A still cannot show that a keyframe was ignored.
 
+If the shot has words, check the stills **with the overlay composited on**.
+The plate alone cannot show a caption covering the subject.
+
 Keep the stills. Ames reviews them.
 
 A subset render shows what a shot looks like. It does not show that the whole
@@ -643,7 +647,7 @@ D:\Meshes\queue.ps1 add -Project retina -Name ds_mosaic `
   -Minutes 120 -Note "beats 1,120,300,560 verified as stills" -AddedBy "chat: retina ds"
 ```
 
-It runs at 02:00, waits for a free GPU, moves old output aside, encodes for the
+It runs at 03:00, waits for a free GPU, moves old output aside, encodes for the
 web, logs, and puts the result on the review shelf. The rule set is
 `RENDER_PROTOCOL.md` in [render-queue](https://github.com/amyleesterling/render-queue)
 and it is authoritative. [queue/README.md](queue/README.md) is the summary.
@@ -654,7 +658,80 @@ free. Anything long goes through the queue.
 
 ---
 
-## 9. Encode
+## 9. Words in post, then encode
+
+### Words go on in post, never in the render
+
+This is Ames's rule of 5 October 2026, from
+[notes/words-in-post.md](notes/words-in-post.md). Her text is kept, and six
+clarifications are folded in where they apply.
+
+Render the picture and the words as separate layers, and put them together
+afterwards. Captions, titles, counters, legends, watermarks, whole frame fades
+and end cards are never baked into the 3D frames.
+
+- **Plate**: the 3D scene alone, no text. The slow render, done once.
+- **Overlay**: every word and graphic on a transparent background (PNG-in-MOV
+  or ProRes 4444, keeping alpha). No 3D drawn, so it renders in minutes.
+- **Composite**: ffmpeg lays the overlay on the plate.
+
+All on-screen text lives in one file with its timing (for example
+`captions.json`). Changing a word means editing that file, re-rendering the
+overlay and re-compositing. The plate is never touched.
+
+A legend synced to the picture, such as colour keys that light up as each cell
+type arrives, still belongs in the overlay. The overlay is driven by the same
+timeline as the plate, so it stays in sync without being baked in. Bake text
+into the plate only if there is truly no way to drive it from that timeline.
+
+Effects that depend on the picture behind them, such as a background blur
+behind a card, are rebuilt in the composite from the plate.
+
+Holds and freezes are also post: end the plate where the action stops and hold
+its last frame in the composite. Don't render identical frames.
+
+Render long plates in resumable chunks, so a machine restart costs one chunk,
+not the whole render.
+
+**The clarifications**
+
+1. **"Fades" means the whole frame.** A fade to black or an end card is post.
+   A cell fading in is part of the scene and stays in the plate.
+2. **A hold is post only when nothing moves, the camera included.** Several
+   shots hold with a slow drift. That is motion, and it is rendered.
+3. **A readout that shows a measurement reads the table the render read.** The
+   shared timeline keeps the overlay in step in time. It does not keep a count
+   or a median in step in value. One quantity, one source.
+4. **In Blender, "resumable chunks" means a PNG sequence** that skips frames
+   already on disk, as `retina_ds_anim.py` does. Not a set of mp4 pieces: a
+   partial mp4 from a crashed Blender is unrecoverable.
+5. **The overlay is straight alpha**, not premultiplied. The reference
+   implementation captures PNG frames into a PNG-in-MOV, and PNG is straight.
+   If you change the format, test it against a control, as the BANC layer
+   audits do.
+6. **Do the beat check on the composite**, not on the plate alone. A plate
+   still cannot show a caption sitting on top of the subject.
+
+**Reference implementation**, the web path, in `web/eyewire2/`:
+
+- `captions.json`: every word on screen and when it shows
+- `col3d.html?layer=plate` and `?layer=overlay`: the two layers from one page
+  and one timeline
+- `cap.js`: frame-by-frame capture; `ALPHA=1` keeps transparency, `FROM=`/`TO=`
+  render a frame range
+- `render.sh`: resumable chunked renders
+- `compose.py`: the composite, including the rebuilt backdrop blur and the held
+  last frame
+
+**In Blender** the same split applies: render the scene with no text objects,
+and add every word afterwards from a file with timings. What exists today:
+`caption_video.py` burns timed captions from a JSON spec, and the per project
+`*_overlay.py` scripts draw keys and readouts in Pillow. Those read the plate
+frames from one folder and write composited frames to another, so the plate is
+kept, but they do not yet write a separate transparent overlay movie. A new
+shot should. No box around labels, small type.
+
+### Encode
 
 The queue web encodes every mp4 on success, to `<name>_web.mp4`:
 
@@ -670,10 +747,6 @@ From the playbook section 11:
 > - Verify the host serves **HTTP 206** on a range request.
 > - **Look at the finished file**, not just the render log. Extract frames from
 >   the encoded video and read them as images.
-
-Overlays and captions go on between render and encode: `caption_video.py` for
-timed captions from a JSON spec, and the per project `*_overlay.py` scripts for
-keys and readouts. No box around labels, small type.
 
 Web layers for the BANC app are lossless WebP with straight alpha, encoded and
 audited by the `*_webp.py` and `*_qc.py` scripts. Each audit carries a control,
@@ -735,8 +808,10 @@ Chromium to ffmpeg. It ran end to end in a cloud sandbox for Eyewire II.
 ```bash
 python web/eyewire2/fetch_meshes.py --datastack stroeh_mouse_retina \
     --center 42900 43384 2007 --radius-um 45 --faces 40000 --out meshes
-ANIM_URL=http://127.0.0.1:8765/eyewire2/col3d.html node web/eyewire2/cap.js probe 2 10 20
-ANIM_URL=http://127.0.0.1:8765/eyewire2/col3d.html node web/eyewire2/cap.js full column.mp4
+ANIM_URL=http://127.0.0.1:8766/eyewire2/col3d.html node web/eyewire2/cap.js probe 2 10 20
+eyewire2/render.sh 'col3d.html?meshes=meshes&layer=plate' plate.mp4
+ALPHA=1 eyewire2/render.sh 'col3d.html?meshes=meshes&layer=overlay' overlay.mov
+python3 eyewire2/compose.py plate.mp4 overlay.mov film.mp4
 ```
 
 The same stages apply: download, decimate (40,000 triangles a cell), a beat
@@ -845,14 +920,12 @@ Things that could not be determined from `D:\Meshes` and the three repos on
    listed in [INVENTORY.md](INVENTORY.md). `download_gradient.py`,
    `render_gradient.py` and `gradient_sweep.py` read that CSV, so those three
    cannot run from this repo alone.
-8. **`col3d.html` here is a snapshot of a branch.** It was copied on 4 October
-   from `claude/volume-page-content-review-robkz4`. It reached `main` of the ca3
-   repo the next day along with the film it made. The copy here was not
-   refreshed, so treat the ca3 repo as current. Its three.js vendor files, font
-   and `manifest.csv` stay there.
+8. **`web/eyewire2/` is a snapshot.** It was refreshed from `main` of the ca3
+   repo on 5 October 2026, and that repo stays the place it is developed. The
+   three.js vendor files, the font, `manifest.csv` and the `scifi/` components
+   `col3d.html` loads are not copied here.
 9. **`cap.js` targets a page called `anim.html`** by default, which exists in
-   neither place. It works with `ANIM_URL` set. Whether `anim.html` was a
-   working name for `col3d.html` is unknown.
+   neither place. It works with `ANIM_URL` set, and `render.sh` sets it.
 10. **Whether the BANC shot B cast was decimated.** `banc_shotB_anim.py` reads
     `D:\Meshes\banc\shotB\`, which `banc_download.py` fills at native
     resolution. No decimation script targets that folder. It may render native.
@@ -869,3 +942,11 @@ Things that could not be determined from `D:\Meshes` and the three repos on
 14. **Folders in `D:\Meshes` that belong to other work** were inventoried and
     not copied: `mouse-wiring` (70 GB), `fafb`, `cryoet`, `molecules`, `shiu`.
     Whether any of them should join this repo is undecided.
+15. **The queue runs at 03:00, and the protocol on `main` says 02:00.** The
+    `MeshesRenderQueue` task's daily trigger is 03:00 (read 5 October 2026).
+    An uncommitted edit in the render-queue clone on Aurelius says it moved on
+    7 September. The task also has a second trigger with a 12:15 start, whose
+    purpose is not recorded. This guide says 03:00.
+16. **The Blender overlay scripts predate the words in post rule.** They
+    composite straight onto copies of the frames. None writes a separate
+    transparent overlay movie yet.
