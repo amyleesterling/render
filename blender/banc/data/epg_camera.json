@@ -1,0 +1,43 @@
+{
+ "_note": "Camera solved from the 53-cell EPG set and then LOCKED, so every per-cell render is pixel aligned with every other and with the all-cells frame. Solved under perspective per vertex, not on a flat bounding box, because the cast is ~156 um deep.",
+ "resolution": [
+  1600,
+  1200
+ ],
+ "lens": {
+  "type": "PERSP",
+  "sensor_fit": "VERTICAL",
+  "angle_y_deg": 45.0
+ },
+ "matrix_world": [
+  [
+   1.0,
+   0.0,
+   0.0,
+   519.4559936523438
+  ],
+  [
+   0.0,
+   -1.0,
+   8.742277657347586e-08,
+   150.82200622558594
+  ],
+  [
+   0.0,
+   -8.742277657347586e-08,
+   -1.0,
+   -130.6005859375
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "content_um": [
+  191.64600000000002,
+  119.868
+ ],
+ "distance_um": 232.80758310879247
+}

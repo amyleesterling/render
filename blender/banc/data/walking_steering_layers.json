@@ -1,0 +1,649 @@
+{
+ "_note": "Four pixel-aligned layers for the banc-explorer panel. Every layer renders with the identical camera from walking_steering_camera.json at 1600x1200, transparent, full canvas preserved, so they stack exactly.",
+ "_sides": "DNa02 left/right were not given and are not in the repo. Resolved from CAVE cell_info (datastack brain_and_nerve_cord, mat 896) then sided by mesh geometry, calibrated on the DNa01 pair whose sides were given. Brain-end centroid x: DNa01 left 563857 nm, DNa01 right 411099 nm, midline 487478 nm. Each DNa02 landed within ~12k nm of its same-side DNa01, which is the check that this is right.",
+ "_colors": "The base is neutral gray so the action layers read against it. Action layers keep the scene semantics: #ff1493 descending, #089c39 ascending.",
+ "layers": {
+  "context-base": {
+   "out": "banc-context-base.webp",
+   "color": "#52675E",
+   "description": "all 154 neurons, neutral gray, always visible",
+   "ids": "ALL"
+  },
+  "forward": {
+   "out": "banc-forward.webp",
+   "color": "scene",
+   "description": "the six forward-walking cells: DNg100 pair, AN09B029_b pair, AN02A002 pair",
+   "ids": [
+    [
+     "720575941626500746",
+     "DNg100 left",
+     "#ff1493"
+    ],
+    [
+     "720575941500851362",
+     "DNg100 right",
+     "#ff1493"
+    ],
+    [
+     "720575941594293032",
+     "AN09B029_b left",
+     "#089c39"
+    ],
+    [
+     "720575941484372221",
+     "AN09B029_b right",
+     "#089c39"
+    ],
+    [
+     "720575941474101344",
+     "AN02A002",
+     "#089c39"
+    ],
+    [
+     "720575941483106243",
+     "AN02A002",
+     "#089c39"
+    ]
+   ]
+  },
+  "backward": {
+   "out": "banc-backward.webp",
+   "label": "MOONWALK",
+   "color": "#ff1493",
+   "description": "the four BANC MDNs mapped by soma supervoxel from materialization 896 to the frozen v888 public mesh snapshot",
+   "ids": [
+    [
+     "720575941614906387",
+     "MDN",
+     "#ff1493"
+    ],
+    [
+     "720575941499708745",
+     "MDN",
+     "#ff1493"
+    ],
+    [
+     "720575941491012809",
+     "MDN",
+     "#ff1493"
+    ],
+    [
+     "720575941491065653",
+     "MDN",
+     "#ff1493"
+    ]
+   ]
+  },
+  "turn-left": {
+   "out": "banc-turn-left.webp",
+   "color": "scene",
+   "description": "left DNa01 and DNa02, both descending",
+   "ids": [
+    [
+     "720575941535862506",
+     "DNa01 left",
+     "#ff1493"
+    ],
+    [
+     "720575941510475536",
+     "DNa02 left",
+     "#ff1493"
+    ]
+   ]
+  },
+  "turn-right": {
+   "out": "banc-turn-right.webp",
+   "color": "scene",
+   "description": "right DNa01 and DNa02, both descending",
+   "ids": [
+    [
+     "720575941432123640",
+     "DNa01 right",
+     "#ff1493"
+    ],
+    [
+     "720575941456897005",
+     "DNa02 right",
+     "#ff1493"
+    ]
+   ]
+  },
+  "eat": {
+   "out": "banc-eat.webp",
+   "label": "EATING",
+   "color": "#FFC857",
+   "description": "six feeding exemplars: DNg70, feeding-associated DNp44, hunger-associated DNp62",
+   "ids": [
+    [
+     "720575941352918576",
+     "DNg70 left",
+     "#FFC857"
+    ],
+    [
+     "720575941478429802",
+     "DNg70 right",
+     "#FFC857"
+    ],
+    [
+     "720575941605523902",
+     "DNp44 left",
+     "#FFC857"
+    ],
+    [
+     "720575941554172807",
+     "DNp44 right",
+     "#FFC857"
+    ],
+    [
+     "720575941652883477",
+     "DNp62 left",
+     "#FFC857"
+    ],
+    [
+     "720575941492125902",
+     "DNp62 right",
+     "#FFC857"
+    ]
+   ]
+  },
+  "threat-walk": {
+   "out": "banc-threat-walk.webp",
+   "label": "THREAT RESPONSE",
+   "_label_note": "THREAT RESPONSE, never 'threat detection'. These cells sit in the response module influenced by loom and small-object pathways; they are not themselves a complete visual detection circuit.",
+   "color": "#FF6B5F",
+   "description": "five escape-on-foot exemplars: DNp42 backward walking, DNg55 steering, DNge053 walking. DNp01/02/04/06 deliberately excluded as takeoff, for a later flight layer.",
+   "ids": [
+    [
+     "720575941536353880",
+     "DNp42 left",
+     "#FF6B5F"
+    ],
+    [
+     "720575941394119830",
+     "DNp42 right",
+     "#FF6B5F"
+    ],
+    [
+     "720575941504526386",
+     "DNg55 right",
+     "#FF6B5F"
+    ],
+    [
+     "720575941554952858",
+     "DNge053 left",
+     "#FF6B5F"
+    ],
+    [
+     "720575941439563583",
+     "DNge053 right",
+     "#FF6B5F"
+    ]
+   ]
+  },
+  "flight-dodge-dnp03-all": {
+   "out": "banc-flight-dodge-dnp03-all.webp",
+   "label": "QUICK DODGE / FLIGHT SACCADE",
+   "_role": "flight-saccade response; NOT threat detection. Do not label these threat detectors.",
+   "color": "#FF8FA8",
+   "description": "DNp03 both hemispheres, resolved in BANC v888 cell_info",
+   "ids": [
+    [
+     "720575941539809997",
+     "DNp03 anatomical left",
+     "#FF8FA8"
+    ],
+    [
+     "720575941558607396",
+     "DNp03 anatomical right",
+     "#FF8FA8"
+    ]
+   ]
+  },
+  "flight-dodge-dnp03-anatomical-left": {
+   "out": "banc-flight-dodge-dnp03-anatomical-left.webp",
+   "label": "QUICK DODGE, ANATOMICAL LEFT",
+   "_naming": "anatomical side, NOT a behavioural direction. Do not rename dodge-left until the behavioural mapping is independently validated.",
+   "color": "#FF8FA8",
+   "description": "DNp03 anatomical left hemisphere",
+   "ids": [
+    [
+     "720575941539809997",
+     "DNp03 anatomical left",
+     "#FF8FA8"
+    ]
+   ]
+  },
+  "flight-dodge-dnp03-anatomical-right": {
+   "out": "banc-flight-dodge-dnp03-anatomical-right.webp",
+   "label": "QUICK DODGE, ANATOMICAL RIGHT",
+   "_naming": "anatomical side, NOT a behavioural direction.",
+   "color": "#FF8FA8",
+   "description": "DNp03 anatomical right hemisphere",
+   "ids": [
+    [
+     "720575941558607396",
+     "DNp03 anatomical right",
+     "#FF8FA8"
+    ]
+   ]
+  },
+  "groom-head-dng12": {
+   "out": "banc-groom-head-dng12.webp",
+   "label": "BANC DNg12-annotated population - anterior grooming",
+   "_qualifier": "This is the BANC-native DNg12 annotation population. It does not imply that every rendered cell was independently function-tested.",
+   "color": "#C7A6F3",
+   "description": "28 cells with cell_info tag == DNg12 at materialization 888. Subtype-only DNg12_a/DNg12_b rows deliberately NOT unioned in; the two contradictory a/b cells were never in this set so the exclusion was a no-op.",
+   "ids": [
+    [
+     "720575941390722710",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941399380515",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941412623215",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941456665581",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941462606547",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941466965725",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941472597051",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941473825888",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941476367937",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941479434720",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941503527147",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941504258839",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941513793612",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941515077699",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941515726691",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941518261932",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941540535069",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941563064071",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941565293063",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941569306874",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941586425412",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941588123902",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941600262848",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941626302858",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941649976049",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941653841681",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941680648893",
+     "DNg12",
+     "#C7A6F3"
+    ],
+    [
+     "720575941688242328",
+     "DNg12",
+     "#C7A6F3"
+    ]
+   ]
+  },
+  "walk-speed-dng100": {
+   "ids": [
+    [
+     "720575941626500746",
+     "DNg100 left",
+     "#72D7E8"
+    ],
+    [
+     "720575941500851362",
+     "DNg100 right",
+     "#72D7E8"
+    ]
+   ],
+   "color": "#72D7E8",
+   "description": "DNg100 pair alone, walking speed. Deliberately excludes DNa01, DNa02, AN09B029_b and AN02A002: the app composites this as an independent layer over forward / turn-left / turn-right while SPEED is held."
+  },
+  "flight-power-dng02": {
+   "out": "banc-flight-power-dng02.webp",
+   "label": "FLIGHT POWER / THROTTLE",
+   "color": "#70D8CE",
+   "_role": "Both flight-forward and flight-reverse reuse this same anatomical layer. Reverse is a reduced/redirected-thrust UI state, NOT a separate backward-flight cell type. Do not render or label S as different cells.",
+   "description": "26-cell BANC DNg02 population from app/data/flight-dng02.json, v888",
+   "ids": [
+    [
+     "720575941503528171",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941462512851",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941692162456",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941489083596",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941553985875",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941439029951",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941681032125",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941496426695",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941441643867",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941494986951",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941559104813",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941473793322",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941501552983",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941516764819",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941632002720",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941561224463",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941632978629",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941661415224",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941486574598",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941574744329",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941432295639",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941587856951",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941549156980",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941505929506",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941549490209",
+     "DNg02",
+     "#70D8CE"
+    ],
+    [
+     "720575941591151500",
+     "DNg02",
+     "#70D8CE"
+    ]
+   ]
+  },
+  "flight-steer-mnb1-all": {
+   "out": "banc-flight-steer-mnb1-all.webp",
+   "label": "b1 wing steering motor neurons (MNb1)",
+   "color": "#8EDBD6",
+   "_caveat": "Anatomical side is not assigned to turn direction; b1 output is graded and phase-dependent.",
+   "description": "both b1 MN cells, v888",
+   "ids": [
+    [
+     "720575941521196211",
+     "b1 MN anatomical left",
+     "#8EDBD6"
+    ],
+    [
+     "720575941549822781",
+     "b1 MN anatomical right",
+     "#8EDBD6"
+    ]
+   ]
+  },
+  "flight-steer-mnb1-anatomical-left": {
+   "out": "banc-flight-steer-mnb1-anatomical-left.webp",
+   "label": "b1 wing steering motor neurons (MNb1)",
+   "color": "#8EDBD6",
+   "_caveat": "Anatomical side is not assigned to turn direction; b1 output is graded and phase-dependent.",
+   "description": "b1 MN anatomical left",
+   "ids": [
+    [
+     "720575941521196211",
+     "b1 MN anatomical left",
+     "#8EDBD6"
+    ]
+   ]
+  },
+  "flight-steer-mnb1-anatomical-right": {
+   "out": "banc-flight-steer-mnb1-anatomical-right.webp",
+   "label": "b1 wing steering motor neurons (MNb1)",
+   "color": "#8EDBD6",
+   "_caveat": "Anatomical side is not assigned to turn direction; b1 output is graded and phase-dependent.",
+   "description": "b1 MN anatomical right",
+   "ids": [
+    [
+     "720575941549822781",
+     "b1 MN anatomical right",
+     "#8EDBD6"
+    ]
+   ]
+  },
+  "landing-dnp07-dnp10": {
+   "out": "banc-landing-dnp07-dnp10.webp",
+   "label": "LANDING",
+   "color": "#68D5C0",
+   "_claim": "DNp07 and DNp10 contribute to visually evoked landing and landing-like extension of all six legs. Not the only landing neurons.",
+   "description": "DNp07 pair + DNp10 pair, v888",
+   "ids": [
+    [
+     "720575941407841071",
+     "DNp07",
+     "#68D5C0"
+    ],
+    [
+     "720575941545991429",
+     "DNp07",
+     "#68D5C0"
+    ],
+    [
+     "720575941440683743",
+     "DNp10",
+     "#68D5C0"
+    ],
+    [
+     "720575941593683051",
+     "DNp10",
+     "#68D5C0"
+    ]
+   ]
+  },
+  "landing-dnp07": {
+   "out": "banc-landing-dnp07.webp",
+   "label": "LANDING \u00b7 DNp07",
+   "color": "#68D5C0",
+   "_claim": "DNp07 and DNp10 contribute to visually evoked landing and landing-like extension of all six legs. Not the only landing neurons.",
+   "description": "DNp07 pair",
+   "ids": [
+    [
+     "720575941407841071",
+     "DNp07",
+     "#68D5C0"
+    ],
+    [
+     "720575941545991429",
+     "DNp07",
+     "#68D5C0"
+    ]
+   ]
+  },
+  "landing-dnp10": {
+   "out": "banc-landing-dnp10.webp",
+   "label": "LANDING \u00b7 DNp10",
+   "color": "#68D5C0",
+   "_claim": "DNp07 and DNp10 contribute to visually evoked landing and landing-like extension of all six legs. Not the only landing neurons.",
+   "description": "DNp10 pair",
+   "ids": [
+    [
+     "720575941440683743",
+     "DNp10",
+     "#68D5C0"
+    ],
+    [
+     "720575941593683051",
+     "DNp10",
+     "#68D5C0"
+    ]
+   ]
+  }
+ }
+}

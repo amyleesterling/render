@@ -1,0 +1,54 @@
+{
+ "_note": "Blender camera reproducing the banc-explorer Neuroglancer framing. World units are MICROMETRES: import the nm OBJs and scale by 0.001. matrix_world is row-major 4x4, ready for Matrix(...) in Blender.",
+ "resolution": [
+  1600,
+  1200
+ ],
+ "lens": {
+  "type": "PERSP",
+  "sensor_fit": "VERTICAL",
+  "angle_y_deg": 45.0
+ },
+ "_lens_note": "sensor_fit MUST be VERTICAL. Blender's default AUTO fits the LARGER axis, which on a 4:3 landscape frame is the width, and the subject would be framed on the wrong axis.",
+ "matrix_world": [
+  [
+   0.9947879948843159,
+   0.002025666465492745,
+   0.10194479828542959,
+   649.157375
+  ],
+  [
+   0.01352898869968641,
+   -0.9935851231128902,
+   -0.11227453195432746,
+   326.5165625
+  ],
+  [
+   0.10106340434997353,
+   0.11306856240402813,
+   -0.9884339571144751,
+   -1315.1773828125
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "location_um": [
+  649.157375,
+  326.5165625,
+  -1315.1773828125
+ ],
+ "look_at_um": [
+  500.3900349880309,
+  490.35801150820663,
+  127.23746375688864
+ ],
+ "clip": {
+  "start_um": 1.0,
+  "end_um": 6000.0
+ },
+ "provenance": "invViewMatrix + viewProjectionMat read from the live spelunker.cave-explorer.org perspective panel sized to 1600x1200"
+}

@@ -1,0 +1,10 @@
+{
+ "dn_with_endocrine": 720575941662506040,
+ "parts": [
+  "leg",
+  "neck",
+  "wing"
+ ],
+ "n_motor_targets": 34,
+ "n_endocrine_targets": 15
+}

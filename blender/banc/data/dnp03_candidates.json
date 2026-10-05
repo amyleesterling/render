@@ -1,0 +1,72 @@
+{
+ "materialization": 888,
+ "candidates": [
+  "720575941539809997",
+  "720575941558607396"
+ ],
+ "tags": {
+  "720575941539809997": [
+   "CNS neuron",
+   "DNp03",
+   "descending",
+   "soma in brain"
+  ],
+  "720575941558607396": [
+   "CNS neuron",
+   "DNp03",
+   "descending",
+   "soma in brain"
+  ]
+ },
+ "related_tag_probes": {
+  "DNp03": [
+   "720575941539809997",
+   "720575941558607396"
+  ],
+  "AX": [],
+  "DNp3": []
+ },
+ "mesh_present": {
+  "720575941539809997": true,
+  "720575941558607396": true
+ },
+ "mesh_control_404": true,
+ "lineage": {
+  "720575941539809997": {
+   "is_latest": true,
+   "maps_to": null
+  },
+  "720575941558607396": {
+   "is_latest": true,
+   "maps_to": null
+  }
+ },
+ "geometry": {
+  "720575941539809997": {
+   "brain_end_centroid_x_nm": 571898.8,
+   "anatomical_side": "left",
+   "distance_from_midline_nm": 84420.8,
+   "y_range_nm": [
+    150949.0,
+    788969.0
+   ],
+   "crosses_neck_connective": true,
+   "faces": 1550594,
+   "vertices": 769139
+  },
+  "720575941558607396": {
+   "brain_end_centroid_x_nm": 398279.7,
+   "anatomical_side": "right",
+   "distance_from_midline_nm": 89198.3,
+   "y_range_nm": [
+    154146.0,
+    799894.0
+   ],
+   "crosses_neck_connective": true,
+   "faces": 1699914,
+   "vertices": 844053
+  }
+ },
+ "midline_nm": 487478.0,
+ "resolved": true
+}
