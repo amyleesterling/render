@@ -1,0 +1,53 @@
+# This repo holds code and notes only. Meshes, renders and scene caches stay on
+# Aurelius under D:\Meshes and are regenerable from the scripts here.
+
+# meshes
+*.obj
+*.ply
+*.stl
+*.glb
+*.gltf
+*.h5
+*.swc
+meshes/
+meshes_full/
+meshes_clean/
+
+# scene caches and their backups
+*.blend
+*.blend1
+*.blend2
+
+# render output and derived arrays
+renders/
+*.mp4
+*.mov
+*.webm
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.exr
+*.npy
+*.npz
+*.parquet
+*.pkl
+
+# run logs
+*.log
+*_log.txt
+*_err.txt
+*.err
+
+# secrets. The CAVE token lives in ~/.cloudvolume/secrets/cave-secret.json and
+# is never copied here.
+cave-secret.json
+*secret*.json
+.env
+.env.*
+
+# python and node
+.venv/
+__pycache__/
+*.pyc
+node_modules/
